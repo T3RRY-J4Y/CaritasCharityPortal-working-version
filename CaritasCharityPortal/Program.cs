@@ -43,7 +43,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // ========== SEED ADMIN USER ==========
 using (var scope = app.Services.CreateScope())
@@ -88,6 +88,5 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"⚠️ Admin seed error: {ex.Message}");
     }
 }
-
 
 app.Run();

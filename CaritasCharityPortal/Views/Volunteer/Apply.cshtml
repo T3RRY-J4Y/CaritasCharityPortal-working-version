@@ -2,104 +2,246 @@
     ViewData["Title"] = "Apply as Volunteer";
 }
 
-<div class="user-request-page">
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">Become a Volunteer</h1>
-            <p class="page-subtitle">Join Caritas and help make a difference in your community.</p>
-        </div>
-    </div>
-    <div class="request-card">
-        <form id="applyForm">
-            <div class="form-row">
-                <div>
-                    <label>Full Name *</label>
-                    <input type="text" id="fullName" placeholder="John Doe" required />
-                </div>
-                <div>
-                    <label>Email *</label>
-                    <input type="email" id="email" placeholder="john@email.com" required />
-                </div>
-            </div>
-            <div class="form-row">
-                <div>
-                    <label>Phone Number *</label>
-                    <input type="tel" id="phone" placeholder="+27 12 345 6789" required />
-                </div>
-                <div>
-                    <label>Location *</label>
-                    <input type="text" id="location" placeholder="City, Province" required />
-                </div>
-            </div>
-            <label>Skills & Expertise *</label>
-            <input type="text" id="skills" placeholder="e.g., Event Planning, Medical Support, Teaching" required />
+<style>
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
 
-            <label>Availability *</label>
-            <select id="availability" required>
-                <option value="">Select availability</option>
-                <option>Weekdays</option>
-                <option>Weekends</option>
-                <option>Evenings</option>
-                <option>Flexible</option>
-            </select>
+.volunteer-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
 
-            <label>Why do you want to volunteer? *</label>
-            <textarea id="motivation" placeholder="Tell us about your motivation..." required></textarea>
+/* Info panel */
+.info-card{
+    background:linear-gradient(145deg,#1c0a0a 0%,#3a0d1a 100%);
+    border-radius:12px;padding:36px 32px;position:relative;overflow:hidden;
+}
+.info-card::before{
+    content:'';position:absolute;inset:0;
+    background:url('/images/outreach9.jpg') center/cover no-repeat;
+    opacity:0.1;
+}
+.info-inner{position:relative;z-index:1}
+.info-card h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:12px;line-height:1.2}
+.info-card h2 em{color:#c9944b;font-style:normal}
+.info-card p{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.75;margin-bottom:24px}
 
-            <div class="modal-actions">
-                <button type="submit" class="submit-btn full">Submit Application</button>
-            </div>
-        </form>
+.perk-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.perk{display:flex;align-items:flex-start;gap:12px}
+.perk-icon{
+    width:32px;height:32px;border-radius:8px;
+    background:rgba(255,255,255,0.08);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;color:#c9944b;flex-shrink:0;
+}
+.perk-text strong{display:block;font-size:13px;color:#fff;font-weight:600;margin-bottom:1px}
+.perk-text span{font-size:12px;color:rgba(255,255,255,0.5)}
+
+.vol-stats{display:flex;gap:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08)}
+.vstat-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#c9944b;line-height:1}
+.vstat-label{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* Form card */
+.form-card{background:#fff;border:1px solid #e8e0d8;border-radius:12px;padding:32px}
+.form-card h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.form-card .form-desc{font-size:12px;color:#7a6858;margin-bottom:24px}
+
+.section-divider{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c8102e;margin:20px 0 4px;padding-bottom:6px;border-bottom:1px solid #f0ede8}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1c1008;margin-bottom:5px}
+.field input,.field textarea,.field select{
+    width:100%;padding:10px 12px;border:1.5px solid #e8e0d8;border-radius:6px;
+    font-family:'Jost',sans-serif;font-size:13px;color:#1c1008;background:#fff;
+    outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+    border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,0.08);
+}
+.field input::placeholder,.field textarea::placeholder{color:#bbb}
+.field textarea{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.submit-btn{
+    width:100%;padding:13px;background:#c8102e;color:#fff;border:none;border-radius:6px;
+    font-family:'Jost',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+    transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+    margin-top:8px;
+}
+.submit-btn:hover{background:#9b0b21;transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,16,46,0.25)}
+.form-error{color:#dc2626;font-size:12px;margin-top:8px;display:none}
+.form-success{
+    display:none;text-align:center;padding:24px;background:#f0fdf4;
+    border:1px solid #bbf7d0;border-radius:8px;margin-top:12px;
+}
+.form-success i{font-size:32px;color:#16a34a;margin-bottom:10px;display:block}
+.form-success strong{display:block;font-size:16px;font-weight:700;color:#1c1008;margin-bottom:6px}
+.form-success span{font-size:13px;color:#6b7280;line-height:1.6;display:block}
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Become a Volunteer</h1>
+        <p class="page-subtitle">Join Caritas and help make a difference in the community.</p>
     </div>
 </div>
 
+<div class="volunteer-grid">
+
+    <!-- Left: info panel -->
+    <div class="info-card">
+        <div class="info-inner">
+            <h2>Serve with <em>Purpose & Heart.</em></h2>
+            <p>Volunteering with Caritas St Thomas More means joining a dedicated team of compassionate people who give their time, skills and hearts to uplift those in need.</p>
+
+            <div class="perk-list">
+                <div class="perk">
+                    <div class="perk-icon"><i class="fa-solid fa-box-open"></i></div>
+                    <div class="perk-text">
+                        <strong>Food Parcel Drives</strong>
+                        <span>Help pack and distribute food parcels to families in Centurion.</span>
+                    </div>
+                </div>
+                <div class="perk">
+                    <div class="perk-icon"><i class="fa-solid fa-shirt"></i></div>
+                    <div class="perk-text">
+                        <strong>Clothing & Blanket Donations</strong>
+                        <span>Sort, pack and hand out clothing and winter blankets.</span>
+                    </div>
+                </div>
+                <div class="perk">
+                    <div class="perk-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                    <div class="perk-text">
+                        <strong>Community Outreach</strong>
+                        <span>Visit families, assist at events and support community upliftment.</span>
+                    </div>
+                </div>
+                <div class="perk">
+                    <div class="perk-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                    <div class="perk-text">
+                        <strong>Flexible Commitment</strong>
+                        <span>Choose when you're available — weekdays, weekends or evenings.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vol-stats">
+                <div><div class="vstat-num">50+</div><div class="vstat-label">Active Volunteers</div></div>
+                <div><div class="vstat-num">300+</div><div class="vstat-label">Families Helped</div></div>
+                <div><div class="vstat-num">28+</div><div class="vstat-label">Years of Service</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: form -->
+    <div class="form-card">
+        <h3>Volunteer Application</h3>
+        <p class="form-desc">Fill in your details and we'll be in touch. Fields marked * are required.</p>
+
+        <form id="applyForm">
+
+            <div class="section-divider">Personal Details</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Full Name *</label>
+                    <input type="text" id="fullName" placeholder="John Doe" required/>
+                </div>
+                <div class="field">
+                    <label>Email Address *</label>
+                    <input type="email" id="email" placeholder="john@email.com" required/>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Phone Number *</label>
+                    <input type="tel" id="phone" placeholder="+27 12 345 6789" required/>
+                </div>
+                <div class="field">
+                    <label>Location *</label>
+                    <input type="text" id="location" placeholder="City, Province" required/>
+                </div>
+            </div>
+
+            <div class="section-divider">Skills & Availability</div>
+
+            <div class="field">
+                <label>Skills & Expertise *</label>
+                <input type="text" id="skills" placeholder="e.g. Event Planning, Medical Support, Teaching" required/>
+            </div>
+
+            <div class="field">
+                <label>Availability *</label>
+                <select id="availability" required>
+                    <option value="">Select availability</option>
+                    <option>Weekdays</option>
+                    <option>Weekends</option>
+                    <option>Evenings and weekends</option>
+                    <option>Flexible schedule</option>
+                </select>
+            </div>
+
+            <div class="section-divider">Motivation</div>
+
+            <div class="field">
+                <label>Why do you want to volunteer? *</label>
+                <textarea id="motivation" placeholder="Tell us about your motivation to serve the community…" required></textarea>
+            </div>
+
+            <div class="form-error" id="formError"></div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fa-solid fa-paper-plane"></i> Submit Application
+            </button>
+
+            <div class="form-success" id="formSuccess">
+                <i class="fa-solid fa-check-circle"></i>
+                <strong>Application Submitted!</strong>
+                <span>Thank you for applying. Our team will review your application and get back to you soon.</span>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
 <script>
-    document.getElementById("applyForm").addEventListener("submit", async function(e) {
-        e.preventDefault();
+document.getElementById("applyForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    var errEl = document.getElementById("formError");
+    errEl.style.display = "none";
 
-        // Client-side validation
-        const requiredFields = this.querySelectorAll("[required]");
-        let isValid = true;
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.style.borderColor = "red";
-                isValid = false;
-            } else {
-                field.style.borderColor = "";
-            }
+    var fullName     = document.getElementById("fullName").value.trim();
+    var email        = document.getElementById("email").value.trim();
+    var phone        = document.getElementById("phone").value.trim();
+    var location     = document.getElementById("location").value.trim();
+    var skills       = document.getElementById("skills").value.trim();
+    var availability = document.getElementById("availability").value;
+    var motivation   = document.getElementById("motivation").value.trim();
+
+    if (!fullName || !email || !phone || !location || !skills || !availability || !motivation) {
+        errEl.textContent = "Please fill in all required fields.";
+        errEl.style.display = "block"; return;
+    }
+
+    var data = { fullName, email, phone, location, skills, availability, motivation };
+
+    try {
+        var res    = await fetch("/Volunteer/Create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
         });
-        if (!isValid) {
-            alert("Please fill in all required fields.");
-            return;
+        var result = await res.json();
+        if (result.success) {
+            document.getElementById("applyForm").style.display = "none";
+            document.getElementById("formSuccess").style.display = "block";
+        } else {
+            errEl.textContent = result.message || "Submission failed.";
+            errEl.style.display = "block";
         }
-
-        const data = {
-            fullName: document.getElementById("fullName").value,
-            email: document.getElementById("email").value,
-            phone: document.getElementById("phone").value,
-            location: document.getElementById("location").value,
-            skills: document.getElementById("skills").value,
-            availability: document.getElementById("availability").value,
-            motivation: document.getElementById("motivation").value
-        };
-
-        try {
-            const response = await fetch("/Volunteer/Create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-            if (result.success) {
-                alert("Application submitted successfully! Thank you.");
-                document.getElementById("applyForm").reset();
-                // Reset border colors
-                document.querySelectorAll("#applyForm [required]").forEach(f => f.style.borderColor = "");
-            } else {
-                alert("Error: " + result.message);
-            }
-        } catch (error) {
-            alert("Network error: " + error.message);
-        }
-    });
+    } catch(err) {
+        errEl.textContent = "Network error. Please try again.";
+        errEl.style.display = "block";
+    }
+});
 </script>

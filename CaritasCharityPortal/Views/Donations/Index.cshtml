@@ -8,115 +8,291 @@
     var pendingCount = Model.Count(d => d.Status == "Pending");
 }
 
+<style>
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px;transition:box-shadow .2s}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat-card-header h4{font-size:12px;font-weight:600;color:#7a6858;text-transform:uppercase;letter-spacing:.5px}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.stat-icon.blue{background:#dbeafe;color:#1d4ed8}
+.stat-icon.green{background:#dcfce7;color:#16a34a}
+.stat-icon.orange{background:#ffedd5;color:#ea580c}
+.stat-icon.purple{background:#f3e8ff;color:#7c3aed}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#1c1008;line-height:1}
+.stat-label{font-size:11px;color:#9ca3af;margin-top:4px}
+
+/* Table card */
+.table-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:24px;margin-bottom:24px}
+.table-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px}
+.table-header h3{font-size:15px;font-weight:700;color:#1c1008;margin-bottom:2px}
+.table-header p{font-size:12px;color:#9ca3af}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;border-bottom:2px solid #f3f4f6}
+.data-table td{padding:12px 12px;border-bottom:1px solid #f9fafb;color:#374151;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fdf8f3}
+.ref-code{font-family:monospace;font-size:11px;background:#f3f4f6;padding:2px 6px;border-radius:4px;color:#374151}
+
+/* Type chip */
+.type-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.type-chip.green{background:#dcfce7;color:#16a34a}
+.type-chip.orange{background:#ffedd5;color:#ea580c}
+.type-chip.blue{background:#dbeafe;color:#1d4ed8}
+.type-chip.purple{background:#f3e8ff;color:#7c3aed}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge.blue{background:#dbeafe;color:#1d4ed8}
+.badge.green{background:#dcfce7;color:#16a34a}
+.badge.yellow{background:#fef9c3;color:#a16207}
+.badge.orange{background:#ffedd5;color:#ea580c}
+.badge.red{background:#fee2e2;color:#dc2626}
+
+/* Status select */
+.status-select{font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#374151;cursor:pointer}
+.status-select:focus{outline:none;border-color:#c8102e}
+
+/* Delete btn */
+.delete-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:#fee2e2;color:#dc2626;margin-left:6px;transition:background .2s}
+.delete-btn:hover{background:#fecaca}
+
+/* Primary btn */
+.primary-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.primary-btn:hover{background:#9b0b21;transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,16,46,0.25)}
+
+/* Empty state */
+.empty-state{text-align:center;padding:48px 24px}
+.empty-state p{font-size:14px;color:#9ca3af;margin-bottom:16px}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(28,16,8,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.donation-modal{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.18)}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#9ca3af;cursor:pointer;line-height:1;transition:color .2s}
+.modal-close:hover{color:#1c1008}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.modal-subtitle{font-size:12px;color:#7a6858;margin-bottom:20px}
+
+/* Donation type tiles */
+.donation-types{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.donation-type{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border:1.5px solid #e8e0d8;border-radius:8px;cursor:pointer;transition:all .2s;background:#fff}
+.donation-type input[type=radio]{display:none}
+.donation-type i{font-size:18px;color:#9ca3af;transition:color .2s}
+.donation-type span{font-size:11px;font-weight:600;color:#7a6858;transition:color .2s}
+.donation-type.selected,.donation-type:has(input:checked){border-color:#c8102e;background:#fff8f8}
+.donation-type:has(input:checked) i{color:#c8102e}
+.donation-type:has(input:checked) span{color:#c8102e}
+
+/* EFT box */
+.eft-details{display:none;background:#fdf8f3;border:1px solid #e8e0d8;border-radius:8px;padding:14px 16px;margin-bottom:16px}
+.eft-details h4{font-size:13px;font-weight:700;color:#1c1008;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.eft-details p{font-size:12px;color:#7a6858;margin-bottom:10px;line-height:1.6}
+.bank-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0ede8;font-size:12px}
+.bank-row:last-child{border-bottom:none}
+.bank-row span{color:#9ca3af}
+.bank-row strong{color:#1c1008;font-weight:600}
+
+/* Form fields */
+.donation-modal label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1c1008;margin-bottom:5px;margin-top:14px}
+.donation-modal input,.donation-modal textarea,.donation-modal select{width:100%;padding:10px 12px;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;color:#1c1008;background:#fff;outline:none;transition:border-color .2s}
+.donation-modal input:focus,.donation-modal textarea:focus{border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,0.08)}
+.donation-modal textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.submit-btn{flex:1;padding:12px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.submit-btn:hover{background:#9b0b21}
+.cancel-btn{padding:12px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.cancel-btn:hover{background:#e5e7eb}
+.form-error{color:#dc2626;font-size:12px;margin-top:8px;display:none}
+</style>
+
 <div class="page-header">
     <div>
-        <h1 class="page-title">Donations</h1>
-        <p class="page-subtitle">Track and manage all donations received.</p>
+        <h1 class="page-title">@(isAdmin ? "All Donations" : "My Donations")</h1>
+        <p class="page-subtitle">@(isAdmin ? "Track and manage all donations received." : "View and submit your donations.")</p>
     </div>
     <button class="primary-btn" onclick="openDonationModal()">
-        <i class="fa-solid fa-plus"></i>
-        New Donation
+        <i class="fa-solid fa-plus"></i> New Donation
     </button>
 </div>
 
 @if (isAdmin)
 {
     <div class="stats">
-        <div class="card">
-            <div class="card-header"><h4>Total Donations</h4><div class="icon blue"><i class="fa-solid fa-heart"></i></div></div>
-            <h2>@totalDonations</h2>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Total Donations</h4><div class="stat-icon blue"><i class="fa-regular fa-heart"></i></div></div>
+            <div class="stat-num">@totalDonations</div>
+            <div class="stat-label">All time submissions</div>
         </div>
-        <div class="card">
-            <div class="card-header"><h4>Monetary Donations</h4><div class="icon green"><i class="fa-solid fa-money-bill-wave"></i></div></div>
-            <h2>R@(totalMonetary.ToString("N2"))</h2>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Monetary</h4><div class="stat-icon green"><i class="fa-solid fa-money-bill-wave"></i></div></div>
+            <div class="stat-num">R @totalMonetary.ToString("N2")</div>
+            <div class="stat-label">Total received</div>
         </div>
-        <div class="card">
-            <div class="card-header"><h4>Food Parcels</h4><div class="icon orange"><i class="fa-solid fa-box"></i></div></div>
-            <h2>@totalFoodParcels</h2>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Food Parcels</h4><div class="stat-icon orange"><i class="fa-solid fa-box"></i></div></div>
+            <div class="stat-num">@totalFoodParcels</div>
+            <div class="stat-label">Units donated</div>
         </div>
-        <div class="card">
-            <div class="card-header"><h4>Pending Review</h4><div class="icon purple"><i class="fa-solid fa-clock"></i></div></div>
-            <h2>@pendingCount</h2>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Pending Review</h4><div class="stat-icon purple"><i class="fa-solid fa-clock"></i></div></div>
+            <div class="stat-num">@pendingCount</div>
+            <div class="stat-label">Awaiting processing</div>
         </div>
     </div>
 }
 
 <div class="table-card">
     <div class="table-header">
-        <h3>Donation Records</h3>
-        <p>Recent donations submitted by donors.</p>
+        <div>
+            <h3>Donation Records</h3>
+            <p>@(isAdmin ? "All submitted donations." : "Donations you have submitted.")</p>
+        </div>
     </div>
+
     @if (Model.Any())
     {
-        <table class="data-table">
-            <thead><tr><th>Reference</th><th>Donor</th><th>Type</th><th>Quantity / Amount</th><th>Date</th><th>Status</th>@if(isAdmin){
-                <th>Actions</th>
-            }
-        </tr></thead>
-        <tbody>
-            @foreach (var donation in Model.OrderByDescending(d => d.DonationDate))
-            {
-                <tr data-id="@donation.Id">
-                    <td>@donation.Reference</td>
-                    <td>@donation.DonorName</td>
-                    <td>@donation.DonationType</td>
-                    <td>@donation.DisplayQuantityOrAmount</td>
-                    <td>@donation.DonationDate.ToString("dd MMM yyyy")</td>
-                    <td><span class="badge @(donation.Status == "Received" ? "blue" : donation.Status == "Stored" ? "green" : donation.Status == "Sorted" ? "yellow" : "orange")">@donation.Status</span></td>
-                    @if (isAdmin)
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Donor</th>
+                        <th>Type</th>
+                        <th>Qty / Amount</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        @if (isAdmin) { <th>Actions</th> }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.OrderByDescending(x => x.DonationDate))
                     {
-                        <td>
-                            <select class="status-select" data-id="@donation.Id">
-                                <option value="Pending" selected="@(donation.Status == "Pending")">Pending</option>
-                                <option value="Received" selected="@(donation.Status == "Received")">Received</option>
-                                <option value="Stored" selected="@(donation.Status == "Stored")">Stored</option>
-                                <option value="Sorted" selected="@(donation.Status == "Sorted")">Sorted</option>
-                            </select>
-                            <button class="delete-btn" data-id="@donation.Id">Delete</button>
-                        </td>
+                        var typeClass = d.DonationType == "Money" ? "green" : d.DonationType == "Food Parcels" ? "orange" : d.DonationType == "Clothing" ? "blue" : "purple";
+                        var typeIcon  = d.DonationType == "Money" ? "fa-money-bill" : d.DonationType == "Food Parcels" ? "fa-box" : d.DonationType == "Clothing" ? "fa-shirt" : "fa-bed";
+                        var statusClass = d.Status == "Received" ? "blue" : d.Status == "Stored" ? "green" : d.Status == "Sorted" ? "yellow" : "orange";
+                        <tr data-id="@d.Id">
+                            <td><span class="ref-code">@d.Reference</span></td>
+                            <td style="font-weight:600;">@d.DonorName</td>
+                            <td>
+                                <span class="type-chip @typeClass">
+                                    <i class="fa-solid @typeIcon"></i> @d.DonationType
+                                </span>
+                            </td>
+                            <td style="font-weight:600;">@d.DisplayQuantityOrAmount</td>
+                            <td style="max-width:180px;white-space:normal;font-size:12px;color:#6b7280;">@(d.Description ?? "–")</td>
+                            <td style="font-size:12px;">@d.DonationDate.ToString("dd MMM yyyy")</td>
+                            <td><span class="badge @statusClass">@d.Status</span></td>
+                            @if (isAdmin)
+                            {
+                                var dStatus = d.Status;
+                                <td style="white-space:nowrap;">
+                                    <select class="status-select" data-id="@d.Id">
+                                        <option value="Pending"     selected="@(dStatus == "Pending"     ? "selected" : null)">Pending</option>
+                                        <option value="Received"    selected="@(dStatus == "Received"    ? "selected" : null)">Received</option>
+                                        <option value="Stored"      selected="@(dStatus == "Stored"      ? "selected" : null)">Stored</option>
+                                        <option value="Sorted"      selected="@(dStatus == "Sorted"      ? "selected" : null)">Sorted</option>
+                                        <option value="Distributed" selected="@(dStatus == "Distributed" ? "selected" : null)">Distributed</option>
+                                    </select>
+                                    <button class="delete-btn" data-id="@d.Id">Delete</button>
+                                </td>
+                            }
+                        </tr>
                     }
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                </tbody>
+            </table>
+        </div>
+    }
     else
-{
-    <div class="empty-state">
-        <p>No donations yet.</p>
-        <button class="primary-btn" onclick="openDonationModal()"><i class="fa-solid fa-plus"></i> Add Your First Donation</button>
-    </div>
-}
+    {
+        <div class="empty-state">
+            <i class="fa-regular fa-heart" style="font-size:36px;color:#d1d5db;display:block;margin-bottom:12px;"></i>
+            <p>No donations yet.</p>
+            <button class="primary-btn" onclick="openDonationModal()">
+                <i class="fa-solid fa-plus"></i> Make Your First Donation
+            </button>
+        </div>
+    }
 </div>
 
-<!-- DONATION MODAL (unchanged) -->
+<!-- ===== DONATION MODAL ===== -->
 <div id="donationModal" class="modal-overlay">
     <div class="donation-modal">
         <button class="modal-close" onclick="closeDonationModal()">×</button>
+        <div class="modal-title">Submit New Donation</div>
+        <div class="modal-subtitle">Fill in the details of your donation below.</div>
+
         <div class="donation-types">
-            <label class="donation-type"><input type="radio" name="donationType" value="Food Parcels" checked onchange="toggleEftDetails()" /><i class="fa-solid fa-box"></i><span>Food Parcels</span></label>
-            <label class="donation-type"><input type="radio" name="donationType" value="Money" onchange="toggleEftDetails()" /><i class="fa-solid fa-rand-sign"></i><span>Money</span></label>
-            <label class="donation-type"><input type="radio" name="donationType" value="Clothing" onchange="toggleEftDetails()" /><i class="fa-solid fa-shirt"></i><span>Clothing</span></label>
-            <label class="donation-type"><input type="radio" name="donationType" value="Blankets" onchange="toggleEftDetails()" /><i class="fa-solid fa-bed"></i><span>Blankets</span></label>
+            <label class="donation-type">
+                <input type="radio" name="donationType" value="Food Parcels" checked onchange="onTypeChange()"/>
+                <i class="fa-solid fa-box"></i><span>Food Parcels</span>
+            </label>
+            <label class="donation-type">
+                <input type="radio" name="donationType" value="Money" onchange="onTypeChange()"/>
+                <i class="fa-solid fa-money-bill"></i><span>Money</span>
+            </label>
+            <label class="donation-type">
+                <input type="radio" name="donationType" value="Clothing" onchange="onTypeChange()"/>
+                <i class="fa-solid fa-shirt"></i><span>Clothing</span>
+            </label>
+            <label class="donation-type">
+                <input type="radio" name="donationType" value="Blankets" onchange="onTypeChange()"/>
+                <i class="fa-solid fa-bed"></i><span>Blankets</span>
+            </label>
         </div>
+
+        <!-- EFT details — shown only for Money -->
         <div id="eftDetails" class="eft-details">
-            <h4>EFT Banking Details</h4>
-            <p>Please make payment using the banking details below. Use your name as the reference.</p>
-            <div class="bank-row"><span>Bank Name</span><strong>Confirm with organisation</strong></div>
+            <h4><i class="fa-solid fa-building-columns"></i> EFT Banking Details</h4>
+            <p>Make your EFT payment first, then complete the form below as proof of payment.</p>
             <div class="bank-row"><span>Account Name</span><strong>Caritas St Thomas More</strong></div>
-            <div class="bank-row"><span>Account Number</span><strong>0000000000</strong></div>
-            <div class="bank-row"><span>Branch Code</span><strong>000000</strong></div>
-            <div class="bank-row"><span>Reference</span><strong>Your Name + Donation</strong></div>
+            <div class="bank-row"><span>Bank</span><strong>Confirm with the organisation</strong></div>
+            <div class="bank-row"><span>Account No</span><strong>0000 000 000</strong></div>
+            <div class="bank-row"><span>Branch Code</span><strong>000 000</strong></div>
+            <div class="bank-row"><span>Reference</span><strong>Your name + "Donation"</strong></div>
         </div>
-        <form>
+
+        <!-- Guidance note — shown for non-money types -->
+        <div id="itemGuidance" style="display:none;background:#fdf8f3;border:1px solid #e8e0d8;border-radius:8px;padding:12px 14px;margin-bottom:4px;font-size:12px;color:#4a3728;line-height:1.6;">
+            <i class="fa-solid fa-info-circle" style="color:#c8102e;margin-right:5px;"></i>
+            <span id="guidanceText"></span>
+        </div>
+
+        <form id="donationForm">
             <label>Donor Name</label>
-            <input type="text" value="Tiro" />
+            <input type="text" id="donorName" placeholder="Your full name" required/>
+
             <div class="form-row">
-                <div><label>Quantity / Amount</label><input type="text" value="02" placeholder="Example: 02 or R500" /></div>
-                <div><label>Donation Date</label><input type="date" value="2026-04-11" /></div>
+                <div id="quantityGroup">
+                    <label id="qtyLabel">Number of Items</label>
+                    <input type="number" id="quantityInput" min="1" placeholder="e.g. 5"/>
+                </div>
+                <div id="amountGroup" style="display:none;">
+                    <label>Amount (R)</label>
+                    <input type="number" id="amountInput" min="1" step="0.01" placeholder="e.g. 500"/>
+                </div>
+                <div>
+                    <label>Donation Date</label>
+                    <input type="date" id="donationDate" required/>
+                </div>
             </div>
-            <label>Description</label>
-            <textarea>Donation of drink (Oros) drink for needy people on 11 April 2026</textarea>
+
+            <div id="proofGroup" style="display:none;">
+                <label>Proof of Payment (URL or reference)</label>
+                <input type="text" id="proofInput" placeholder="Paste image link or enter EFT reference"/>
+            </div>
+
+            <label>Description / Notes</label>
+            <textarea id="donationDesc" placeholder="Any additional details about your donation…"></textarea>
+
+            <div class="form-error" id="formError"></div>
+
             <div class="modal-actions">
                 <button type="submit" class="submit-btn">Submit Donation</button>
                 <button type="button" class="cancel-btn" onclick="closeDonationModal()">Cancel</button>
@@ -126,41 +302,95 @@
 </div>
 
 <script>
-    // Helper functions
-    function openDonationModal() { document.getElementById("donationModal").style.display = "flex"; toggleEftDetails(); }
-    function closeDonationModal() { document.getElementById("donationModal").style.display = "none"; }
-    function toggleEftDetails() { const eft = document.getElementById("eftDetails"); eft.style.display = document.querySelector('input[name="donationType"]:checked').value === "Money" ? "block" : "none"; }
+var isAdmin = @(isAdmin ? "true" : "false");
 
-    // Pass isAdmin from server to JS
-    var isAdmin = @(isAdmin ? "true" : "false");
+var guidance = {
+    "Food Parcels": "Food parcels should include non-perishable items such as maize meal, rice, cooking oil and canned goods. Enter the number of parcels below.",
+    "Clothing":     "Please drop off clothing at the parish hall. All items should be clean and in good condition. Enter the number of individual items below.",
+    "Blankets":     "Winter blankets and warm covers are always needed. Please drop off at the parish or arrange collection. Enter the number of blankets below."
+};
 
+function openDonationModal() {
+    document.getElementById("donationModal").style.display = "flex";
+    document.getElementById("donationDate").valueAsDate = new Date();
+    onTypeChange();
+}
+function closeDonationModal() {
+    document.getElementById("donationModal").style.display = "none";
+    document.getElementById("donationForm").reset();
+    document.getElementById("formError").style.display = "none";
+}
+
+function onTypeChange() {
+    var type = document.querySelector('input[name="donationType"]:checked')?.value || "Food Parcels";
+    var isMoney = type === "Money";
+
+    document.getElementById("eftDetails").style.display    = isMoney ? "block" : "none";
+    document.getElementById("itemGuidance").style.display  = isMoney ? "none"  : "block";
+    document.getElementById("quantityGroup").style.display = isMoney ? "none"  : "";
+    document.getElementById("amountGroup").style.display   = isMoney ? ""      : "none";
+    document.getElementById("proofGroup").style.display    = isMoney ? ""      : "none";
+
+    if (!isMoney) {
+        document.getElementById("guidanceText").textContent = guidance[type] || "";
+        var labels = { "Food Parcels": "Number of Parcels", "Clothing": "Number of Items", "Blankets": "Number of Blankets" };
+        document.getElementById("qtyLabel").textContent = labels[type] || "Quantity";
+    }
+}
+
+document.getElementById("donationForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    var errEl = document.getElementById("formError");
+    errEl.style.display = "none";
+
+    var type     = document.querySelector('input[name="donationType"]:checked')?.value || "";
+    var name     = document.getElementById("donorName").value.trim();
+    var date     = document.getElementById("donationDate").value;
+    var desc     = document.getElementById("donationDesc").value.trim();
+    var qtyAmt   = type === "Money"
+        ? document.getElementById("amountInput").value.trim()
+        : document.getElementById("quantityInput").value.trim();
+
+    if (!name) { errEl.textContent = "Please enter your name."; errEl.style.display = "block"; return; }
+    if (!date) { errEl.textContent = "Please select a date.";   errEl.style.display = "block"; return; }
+    if (!qtyAmt || parseFloat(qtyAmt) <= 0) {
+        errEl.textContent = type === "Money" ? "Please enter a valid amount." : "Please enter a valid quantity.";
+        errEl.style.display = "block"; return;
+    }
+
+    var data = { donorName: name, donationType: type, quantityOrAmount: qtyAmt, donationDate: date, description: desc };
+
+    try {
+        var res = await fetch("/Donations/Create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        var result = await res.json();
+        if (result.success) { closeDonationModal(); location.reload(); }
+        else { errEl.textContent = result.message || "Submission failed."; errEl.style.display = "block"; }
+    } catch(err) {
+        errEl.textContent = "Network error. Please try again.";
+        errEl.style.display = "block";
+    }
+});
+
+if (isAdmin) {
     document.addEventListener("DOMContentLoaded", function() {
-        const form = document.querySelector("#donationModal form");
-        if (form) {
-            form.addEventListener("submit", async function(e) {
-                e.preventDefault();
-                const donorName = form.querySelector("input[type='text']")?.value || "";
-                const donationType = document.querySelector('input[name="donationType"]:checked')?.value || "";
-                const quantityAmount = form.querySelector(".form-row input[type='text']")?.value || "";
-                const donationDate = form.querySelector("input[type='date']")?.value || "";
-                const description = form.querySelector("textarea")?.value || "";
-                const data = { donorName, donationType, quantityOrAmount: quantityAmount, donationDate, description };
-                try {
-                    const res = await fetch("/Donations/Create", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(data) });
-                    const result = await res.json();
-                    if(result.success) { alert("Donation saved!"); closeDonationModal(); location.reload(); }
-                    else alert("Error: "+result.message);
-                } catch(e) { alert("Network error"); }
-            });
-        }
-        if (isAdmin) {
-            document.querySelectorAll(".status-select").forEach(sel => sel.addEventListener("change", async function() {
-                await fetch(`/Donations/UpdateStatus?id=${this.dataset.id}&status=${this.value}`, { method:"POST" });
+        document.querySelectorAll(".status-select").forEach(function(sel) {
+            sel.addEventListener("change", async function() {
+                await fetch("/Donations/UpdateStatus?id=" + this.dataset.id + "&status=" + this.value, { method: "POST" });
                 location.reload();
-            }));
-            document.querySelectorAll(".delete-btn").forEach(btn => btn.addEventListener("click", async function() {
-                if(confirm("Delete?")) { await fetch(`/Donations/Delete?id=${this.dataset.id}`, { method:"POST" }); location.reload(); }
-            }));
-        }
+            });
+        });
+        document.querySelectorAll(".delete-btn").forEach(function(btn) {
+            btn.addEventListener("click", async function() {
+                if (confirm("Delete this donation record?")) {
+                    await fetch("/Donations/Delete?id=" + this.dataset.id, { method: "POST" });
+                    location.reload();
+                }
+            });
+        });
     });
+}
 </script>

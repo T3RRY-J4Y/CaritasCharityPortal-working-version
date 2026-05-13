@@ -2,93 +2,228 @@
     ViewData["Title"] = "Make a Donation";
 }
 
-<div class="donor-donate-page">
+<style>
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
 
-    <div class="donor-hero">
-        <div>
-            <h1 class="page-title">Make a Donation</h1>
-            <p class="page-subtitle">
-                Support Caritas by submitting your donation details below.
-            </p>
-        </div>
+/* Hero thank-you card */
+.donate-hero{
+    display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px;align-items:stretch;
+}
+.thank-card{
+    background:#fff;border:1px solid #e8e0d8;border-radius:12px;padding:36px 32px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+}
+.thank-logo{width:64px;height:64px;object-fit:contain;margin-bottom:16px}
+.thank-card h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1c1008;margin-bottom:10px}
+.thank-card p{font-size:13px;color:#7a6858;line-height:1.75;max-width:320px}
 
-        <button class="primary-btn" onclick="openDonationModal()">
-            <i class="fa-solid fa-plus"></i>
-            Add Donation
-        </button>
+/* Impact card */
+.impact-card{
+    background:linear-gradient(145deg,#1c0a0a 0%,#3a0d1a 100%);
+    border-radius:12px;padding:36px 32px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    position:relative;overflow:hidden;
+}
+.impact-card::before{
+    content:'';position:absolute;inset:0;
+    background:url('/images/outreach1.jpg') center/cover no-repeat;
+    opacity:0.1;
+}
+.impact-card-inner{position:relative;z-index:1}
+.impact-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:12px;line-height:1.2}
+.impact-card h3 em{color:#c9944b;font-style:normal}
+.impact-card p{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.75;margin-bottom:24px}
+.impact-stats{display:flex;gap:24px;position:relative;z-index:1}
+.istat-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#c9944b;line-height:1}
+.istat-label{font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* What you can donate */
+.donate-options{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.donate-option-card{
+    background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px 16px;
+    text-align:center;cursor:pointer;transition:all .2s;
+}
+.donate-option-card:hover{border-color:#c8102e;box-shadow:0 4px 16px rgba(200,16,46,0.08);transform:translateY(-2px)}
+.option-icon{
+    width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;margin:0 auto 12px;
+}
+.option-icon.orange{background:#ffedd5;color:#ea580c}
+.option-icon.green{background:#dcfce7;color:#16a34a}
+.option-icon.blue{background:#dbeafe;color:#1d4ed8}
+.option-icon.purple{background:#f3e8ff;color:#7c3aed}
+.donate-option-card h4{font-size:13px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.donate-option-card p{font-size:11px;color:#9ca3af;line-height:1.5}
+
+/* Primary btn */
+.primary-btn{display:inline-flex;align-items:center;gap:7px;padding:12px 24px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.primary-btn:hover{background:#9b0b21;transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,16,46,0.25)}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(28,16,8,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.donation-modal{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.18)}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#9ca3af;cursor:pointer;line-height:1;transition:color .2s}
+.modal-close:hover{color:#1c1008}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.modal-subtitle{font-size:12px;color:#7a6858;margin-bottom:20px}
+
+.donation-types{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.donation-type{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border:1.5px solid #e8e0d8;border-radius:8px;cursor:pointer;transition:all .2s;background:#fff}
+.donation-type input[type=radio]{display:none}
+.donation-type i{font-size:18px;color:#9ca3af;transition:color .2s}
+.donation-type span{font-size:11px;font-weight:600;color:#7a6858;transition:color .2s}
+.donation-type:has(input:checked){border-color:#c8102e;background:#fff8f8}
+.donation-type:has(input:checked) i{color:#c8102e}
+.donation-type:has(input:checked) span{color:#c8102e}
+
+.eft-details{display:none;background:#fdf8f3;border:1px solid #e8e0d8;border-radius:8px;padding:14px 16px;margin-bottom:16px}
+.eft-details h4{font-size:13px;font-weight:700;color:#1c1008;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.eft-details p{font-size:12px;color:#7a6858;margin-bottom:10px;line-height:1.6}
+.bank-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0ede8;font-size:12px}
+.bank-row:last-child{border-bottom:none}
+.bank-row span{color:#9ca3af}
+.bank-row strong{color:#1c1008;font-weight:600}
+
+.item-guidance{display:none;background:#fdf8f3;border:1px solid #e8e0d8;border-radius:8px;padding:12px 14px;margin-bottom:4px;font-size:12px;color:#4a3728;line-height:1.6}
+
+.donation-modal label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1c1008;margin-bottom:5px;margin-top:14px}
+.donation-modal input,.donation-modal textarea{width:100%;padding:10px 12px;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;color:#1c1008;background:#fff;outline:none;transition:border-color .2s}
+.donation-modal input:focus,.donation-modal textarea:focus{border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,0.08)}
+.donation-modal textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.submit-btn{flex:1;padding:12px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.submit-btn:hover{background:#9b0b21}
+.cancel-btn{padding:12px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.cancel-btn:hover{background:#e5e7eb}
+.form-error{color:#dc2626;font-size:12px;margin-top:8px;display:none}
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Make a Donation</h1>
+        <p class="page-subtitle">Support Caritas by submitting your donation details below.</p>
     </div>
-
-    <div class="donor-center">
-        <div class="thank-you-card">
-            <div class="thank-icon">
-                <img src="~/images/logo.png" alt="Caritas Logo" />
-            </div>
-
-            <h2>Thank you for supporting Caritas</h2>
-            <p>
-                Your donation helps provide food parcels, clothing, blankets, and support
-                to people in need within the community.
-            </p>
-        </div>
-    </div>
-
+    <button class="primary-btn" onclick="openDonationModal()">
+        <i class="fa-solid fa-plus"></i> New Donation
+    </button>
 </div>
 
-<!-- DONATION MODAL (same as admin donations page) -->
+<!-- Hero: thank-you + impact -->
+<div class="donate-hero">
+    <div class="thank-card">
+        <img src="~/images/logo.png" alt="Caritas Logo" class="thank-logo"/>
+        <h2>Thank you for supporting Caritas</h2>
+        <p>Your donation helps provide food parcels, clothing, blankets and financial support to families in need across Centurion and beyond.</p>
+    </div>
+    <div class="impact-card">
+        <div class="impact-card-inner">
+            <h3>Every Gift Makes an <em>Impact</em></h3>
+            <p>From a single food parcel to a monetary donation — every contribution goes directly to someone in need in our community.</p>
+        </div>
+        <div class="impact-stats">
+            <div><div class="istat-num">500+</div><div class="istat-label">Food Parcels</div></div>
+            <div><div class="istat-num">300+</div><div class="istat-label">Families Helped</div></div>
+            <div><div class="istat-num">50+</div><div class="istat-label">Volunteers</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- What you can donate -->
+<div class="donate-options">
+    <div class="donate-option-card" onclick="openModalWithType('Food Parcels')">
+        <div class="option-icon orange"><i class="fa-solid fa-box"></i></div>
+        <h4>Food Parcels</h4>
+        <p>Non-perishable items, maize meal, rice, cooking oil and canned goods</p>
+    </div>
+    <div class="donate-option-card" onclick="openModalWithType('Money')">
+        <div class="option-icon green"><i class="fa-solid fa-money-bill-wave"></i></div>
+        <h4>Money</h4>
+        <p>Monetary donations via EFT to fund food and community support</p>
+    </div>
+    <div class="donate-option-card" onclick="openModalWithType('Clothing')">
+        <div class="option-icon blue"><i class="fa-solid fa-shirt"></i></div>
+        <h4>Clothing</h4>
+        <p>Clean, good-condition clothing for adults and children in need</p>
+    </div>
+    <div class="donate-option-card" onclick="openModalWithType('Blankets')">
+        <div class="option-icon purple"><i class="fa-solid fa-bed"></i></div>
+        <h4>Blankets</h4>
+        <p>Winter blankets and warm covers for families during cold months</p>
+    </div>
+</div>
+
+<!-- ===== DONATION MODAL ===== -->
 <div id="donationModal" class="modal-overlay">
     <div class="donation-modal">
         <button class="modal-close" onclick="closeDonationModal()">×</button>
+        <div class="modal-title">Submit New Donation</div>
+        <div class="modal-subtitle">Fill in the details of your donation below.</div>
 
         <div class="donation-types">
             <label class="donation-type">
-                <input type="radio" name="donationType" value="Food Parcels" checked onchange="toggleEftDetails()" />
-                <i class="fa-solid fa-box"></i>
-                <span>Food Parcels</span>
+                <input type="radio" name="donationType" value="Food Parcels" checked onchange="onTypeChange()"/>
+                <i class="fa-solid fa-box"></i><span>Food Parcels</span>
             </label>
             <label class="donation-type">
-                <input type="radio" name="donationType" value="Money" onchange="toggleEftDetails()" />
-                <i class="fa-solid fa-rand-sign"></i>
-                <span>Money</span>
+                <input type="radio" name="donationType" value="Money" onchange="onTypeChange()"/>
+                <i class="fa-solid fa-money-bill"></i><span>Money</span>
             </label>
             <label class="donation-type">
-                <input type="radio" name="donationType" value="Clothing" onchange="toggleEftDetails()" />
-                <i class="fa-solid fa-shirt"></i>
-                <span>Clothing</span>
+                <input type="radio" name="donationType" value="Clothing" onchange="onTypeChange()"/>
+                <i class="fa-solid fa-shirt"></i><span>Clothing</span>
             </label>
             <label class="donation-type">
-                <input type="radio" name="donationType" value="Blankets" onchange="toggleEftDetails()" />
-                <i class="fa-solid fa-bed"></i>
-                <span>Blankets</span>
+                <input type="radio" name="donationType" value="Blankets" onchange="onTypeChange()"/>
+                <i class="fa-solid fa-bed"></i><span>Blankets</span>
             </label>
         </div>
 
         <div id="eftDetails" class="eft-details">
-            <h4>EFT Banking Details</h4>
-            <p>Please make payment using the banking details below. Use your name as the reference.</p>
-            <div class="bank-row"><span>Bank Name</span><strong>Confirm with organisation</strong></div>
+            <h4><i class="fa-solid fa-building-columns"></i> EFT Banking Details</h4>
+            <p>Make your EFT payment first, then complete the form below as proof of payment.</p>
             <div class="bank-row"><span>Account Name</span><strong>Caritas St Thomas More</strong></div>
-            <div class="bank-row"><span>Account Number</span><strong>0000000000</strong></div>
-            <div class="bank-row"><span>Branch Code</span><strong>000000</strong></div>
-            <div class="bank-row"><span>Reference</span><strong>Your Name + Donation</strong></div>
+            <div class="bank-row"><span>Bank</span><strong>Confirm with the organisation</strong></div>
+            <div class="bank-row"><span>Account No</span><strong>0000 000 000</strong></div>
+            <div class="bank-row"><span>Branch Code</span><strong>000 000</strong></div>
+            <div class="bank-row"><span>Reference</span><strong>Your name + "Donation"</strong></div>
         </div>
 
-        <form>
+        <div id="itemGuidance" class="item-guidance">
+            <i class="fa-solid fa-info-circle" style="color:#c8102e;margin-right:5px;"></i>
+            <span id="guidanceText"></span>
+        </div>
+
+        <form id="donationForm">
             <label>Donor Name</label>
-            <input type="text" placeholder="Enter your full name" />
+            <input type="text" id="donorName" placeholder="Your full name" required/>
 
             <div class="form-row">
-                <div>
-                    <label>Quantity / Amount</label>
-                    <input type="text" placeholder="Example: 02 or R500" />
+                <div id="quantityGroup">
+                    <label id="qtyLabel">Number of Items</label>
+                    <input type="number" id="quantityInput" min="1" placeholder="e.g. 5"/>
+                </div>
+                <div id="amountGroup" style="display:none;">
+                    <label>Amount (R)</label>
+                    <input type="number" id="amountInput" min="1" step="0.01" placeholder="e.g. 500"/>
                 </div>
                 <div>
                     <label>Donation Date</label>
-                    <input type="date" />
+                    <input type="date" id="donationDate" required/>
                 </div>
             </div>
 
-            <label>Description</label>
-            <textarea placeholder="Describe your donation"></textarea>
+            <div id="proofGroup" style="display:none;">
+                <label>Proof of Payment (URL or reference)</label>
+                <input type="text" id="proofInput" placeholder="Paste image link or enter EFT reference"/>
+            </div>
+
+            <label>Description / Notes</label>
+            <textarea id="donationDesc" placeholder="Any additional details about your donation…"></textarea>
+
+            <div class="form-error" id="formError"></div>
 
             <div class="modal-actions">
                 <button type="submit" class="submit-btn">Submit Donation</button>
@@ -99,60 +234,85 @@
 </div>
 
 <script>
-    function openDonationModal() {
-        document.getElementById("donationModal").style.display = "flex";
-        toggleEftDetails();
+var guidance = {
+    "Food Parcels": "Food parcels should include non-perishable items such as maize meal, rice, cooking oil and canned goods. Enter the number of parcels below.",
+    "Clothing":     "Please drop off clothing at the parish hall. All items should be clean and in good condition. Enter the number of individual items below.",
+    "Blankets":     "Winter blankets and warm covers are always needed. Please drop off at the parish or arrange collection. Enter the number of blankets below."
+};
+
+function openDonationModal() {
+    document.getElementById("donationModal").style.display = "flex";
+    document.getElementById("donationDate").valueAsDate = new Date();
+    onTypeChange();
+}
+
+function openModalWithType(type) {
+    document.querySelector('input[name="donationType"][value="' + type + '"]').checked = true;
+    openDonationModal();
+}
+
+function closeDonationModal() {
+    document.getElementById("donationModal").style.display = "none";
+    document.getElementById("donationForm").reset();
+    document.getElementById("formError").style.display = "none";
+}
+
+function onTypeChange() {
+    var type = document.querySelector('input[name="donationType"]:checked')?.value || "Food Parcels";
+    var isMoney = type === "Money";
+    document.getElementById("eftDetails").style.display    = isMoney ? "block" : "none";
+    document.getElementById("itemGuidance").style.display  = isMoney ? "none"  : "block";
+    document.getElementById("quantityGroup").style.display = isMoney ? "none"  : "";
+    document.getElementById("amountGroup").style.display   = isMoney ? ""      : "none";
+    document.getElementById("proofGroup").style.display    = isMoney ? ""      : "none";
+    if (!isMoney) {
+        document.getElementById("guidanceText").textContent = guidance[type] || "";
+        var labels = { "Food Parcels": "Number of Parcels", "Clothing": "Number of Items", "Blankets": "Number of Blankets" };
+        document.getElementById("qtyLabel").textContent = labels[type] || "Quantity";
     }
+}
 
-    function closeDonationModal() {
-        document.getElementById("donationModal").style.display = "none";
-    }
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("donationForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        var errEl = document.getElementById("formError");
+        errEl.style.display = "none";
 
-    function toggleEftDetails() {
-        const selectedType = document.querySelector('input[name="donationType"]:checked').value;
-        const eftDetails = document.getElementById("eftDetails");
-        eftDetails.style.display = selectedType === "Money" ? "block" : "none";
-    }
+        var type  = document.querySelector('input[name="donationType"]:checked')?.value || "";
+        var name  = document.getElementById("donorName").value.trim();
+        var date  = document.getElementById("donationDate").value;
+        var desc  = document.getElementById("donationDesc").value.trim();
+        var qtyAmt = type === "Money"
+            ? document.getElementById("amountInput").value.trim()
+            : document.getElementById("quantityInput").value.trim();
 
-    // AJAX form submission
-    document.addEventListener("DOMContentLoaded", function() {
-        const form = document.querySelector("#donationModal form");
-        if (form) {
-            form.addEventListener("submit", async function(e) {
-                e.preventDefault();
+        if (!name) { errEl.textContent = "Please enter your name."; errEl.style.display = "block"; return; }
+        if (!date) { errEl.textContent = "Please select a date.";   errEl.style.display = "block"; return; }
+        if (!qtyAmt || parseFloat(qtyAmt) <= 0) {
+            errEl.textContent = type === "Money" ? "Please enter a valid amount." : "Please enter a valid quantity.";
+            errEl.style.display = "block"; return;
+        }
 
-                const donorName = form.querySelector("input[type='text']")?.value || "";
-                const donationType = document.querySelector('input[name="donationType"]:checked')?.value || "";
-                const quantityAmount = form.querySelector(".form-row input[type='text']")?.value || "";
-                const donationDate = form.querySelector("input[type='date']")?.value || "";
-                const description = form.querySelector("textarea")?.value || "";
+        var data = { donorName: name, donationType: type, quantityOrAmount: qtyAmt, donationDate: date, description: desc };
 
-                const data = {
-                    donorName: donorName,
-                    donationType: donationType,
-                    quantityOrAmount: quantityAmount,
-                    donationDate: donationDate,
-                    description: description
-                };
-
-                try {
-                    const response = await fetch("/Donations/Create", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await response.json();
-                    if (result.success) {
-                        alert("Donation saved successfully!");
-                        closeDonationModal();
-                        location.reload();
-                    } else {
-                        alert("Error: " + (result.message || "Unknown error"));
-                    }
-                } catch (error) {
-                    alert("Network error: " + error.message);
-                }
+        try {
+            var res = await fetch("/Donations/Create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
             });
+            var result = await res.json();
+            if (result.success) {
+                closeDonationModal();
+                location.reload();
+            } else {
+                errEl.textContent = result.message || "Submission failed.";
+                errEl.style.display = "block";
+            }
+        } catch(err) {
+            errEl.textContent = "Network error. Please try again.";
+            errEl.style.display = "block";
         }
     });
+});
 </script>

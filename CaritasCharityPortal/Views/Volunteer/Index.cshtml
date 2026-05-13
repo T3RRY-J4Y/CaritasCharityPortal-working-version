@@ -1,187 +1,383 @@
 ﻿@model List<CaritasCharityPortal.Models.Volunteer>
 @{
     ViewData["Title"] = "Volunteer Management";
-    var isAdmin = ViewBag.IsAdmin == true;
+    var isAdmin    = ViewBag.IsAdmin   == true;
     var hasApplied = ViewBag.HasApplied == true;
-
-    // Only admin sees these totals
     var totalVolunteers = Model.Count;
-    var activeCount = Model.Count(v => v.Status == "Active");
-    var pendingCount = Model.Count(v => v.Status == "Pending");
-    var totalHours = Model.Sum(v => v.TotalHours);
+    var activeCount     = Model.Count(v => v.Status == "Active");
+    var pendingCount    = Model.Count(v => v.Status == "Pending");
+    var totalHours      = Model.Sum(v => v.TotalHours);
 }
+
+<style>
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px;transition:box-shadow .2s}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat-card-header h4{font-size:12px;font-weight:600;color:#7a6858;text-transform:uppercase;letter-spacing:.5px}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.stat-icon.blue{background:#dbeafe;color:#1d4ed8}
+.stat-icon.green{background:#dcfce7;color:#16a34a}
+.stat-icon.yellow{background:#fef9c3;color:#a16207}
+.stat-icon.purple{background:#f3e8ff;color:#7c3aed}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#1c1008;line-height:1}
+.stat-label{font-size:11px;color:#9ca3af;margin-top:4px}
+
+/* Table card */
+.table-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:24px;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px}
+.table-header h3{font-size:15px;font-weight:700;color:#1c1008}
+.table-header p{font-size:12px;color:#9ca3af}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;border-bottom:2px solid #f3f4f6}
+.data-table td{padding:12px;border-bottom:1px solid #f9fafb;color:#374151;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fdf8f3}
+.ref-code{font-family:monospace;font-size:11px;background:#f3f4f6;padding:2px 6px;border-radius:4px;color:#374151}
+
+/* Skill pill */
+.skill-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;background:#f3f4f6;color:#374151;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge.green{background:#dcfce7;color:#16a34a}
+.badge.yellow{background:#fef9c3;color:#a16207}
+.badge.red{background:#fee2e2;color:#dc2626}
+
+/* Pending application cards */
+.pending-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vol-card{background:#fdf8f3;border:1px solid #e8e0d8;border-radius:10px;padding:18px}
+.vol-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.vol-card-top h3{font-size:14px;font-weight:700;color:#1c1008;margin-bottom:2px}
+.vol-avatar{
+    width:40px;height:40px;border-radius:50%;background:#c8102e;
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.vol-contact{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.vol-contact span{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:5px}
+.vol-details{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.vol-detail-pill{font-size:11px;background:#fff;border:1px solid #e8e0d8;border-radius:6px;padding:3px 8px;color:#374151}
+.vol-detail-pill strong{color:#4a3728}
+.vol-motivation{font-size:12px;color:#6b7280;font-style:italic;line-height:1.6;margin-bottom:12px;padding:10px 12px;background:#fff;border-radius:6px;border-left:3px solid #c8102e}
+.vol-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.vol-submitted{font-size:11px;color:#9ca3af}
+.vol-actions{display:flex;gap:8px}
+.approve-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:#dcfce7;color:#16a34a;transition:background .2s}
+.approve-btn:hover{background:#bbf7d0}
+.reject-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:#fee2e2;color:#dc2626;transition:background .2s}
+.reject-btn:hover{background:#fecaca}
+.delete-btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:#fee2e2;color:#dc2626;transition:background .2s}
+.delete-btn:hover{background:#fecaca}
+
+/* Buttons */
+.primary-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.primary-btn:hover{background:#9b0b21;transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,16,46,0.25)}
+
+/* Empty state */
+.empty-state{text-align:center;padding:40px 24px}
+.empty-state p{font-size:14px;color:#9ca3af;margin-bottom:16px}
+
+/* User status card */
+.my-app-card{background:#fdf8f3;border:1px solid #e8e0d8;border-radius:10px;padding:24px;max-width:560px}
+.my-app-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.my-app-avatar{width:52px;height:52px;border-radius:50%;background:#c8102e;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;flex-shrink:0}
+.my-app-title strong{display:block;font-size:15px;font-weight:700;color:#1c1008}
+.my-app-title span{font-size:12px;color:#9ca3af}
+.my-app-details{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.my-app-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0ede8;font-size:13px}
+.my-app-row:last-child{border-bottom:none}
+.my-app-row span{color:#9ca3af}
+.my-app-row strong{color:#1c1008;font-weight:600}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(28,16,8,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.volunteer-modal{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.18)}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#9ca3af;cursor:pointer;line-height:1;transition:color .2s}
+.modal-close:hover{color:#1c1008}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.modal-subtitle{font-size:12px;color:#7a6858;margin-bottom:20px}
+.section-divider{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c8102e;margin:16px 0 4px;padding-bottom:6px;border-bottom:1px solid #f0ede8}
+.volunteer-modal label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1c1008;margin-bottom:5px;margin-top:14px}
+.volunteer-modal input,.volunteer-modal textarea,.volunteer-modal select{width:100%;padding:10px 12px;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;color:#1c1008;background:#fff;outline:none;transition:border-color .2s}
+.volunteer-modal input:focus,.volunteer-modal textarea:focus,.volunteer-modal select:focus{border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,0.08)}
+.volunteer-modal textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.submit-btn{flex:1;padding:12px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.submit-btn:hover{background:#9b0b21}
+.cancel-btn{padding:12px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.cancel-btn:hover{background:#e5e7eb}
+.form-error{color:#dc2626;font-size:12px;margin-top:8px;display:none}
+</style>
 
 <div class="page-header">
     <div>
-        <h1 class="page-title">Volunteer Management</h1>
-        <p class="page-subtitle">Manage volunteer applications and active volunteers.</p>
+        <h1 class="page-title">@(isAdmin ? "Volunteer Management" : "Volunteer")</h1>
+        <p class="page-subtitle">@(isAdmin ? "Manage applications and active volunteers." : "Apply to join our volunteer team.")</p>
     </div>
     @if (isAdmin || (!isAdmin && !hasApplied))
     {
         <button class="primary-btn" onclick="openVolunteerModal()">
             <i class="fa-solid fa-user-plus"></i>
-            Add Volunteer
+            @(isAdmin ? "Add Volunteer" : "Apply Now")
         </button>
     }
 </div>
 
 @if (isAdmin)
 {
+    <!-- ===== ADMIN VIEW ===== -->
     <div class="stats">
-        <div class="card"><div class="card-header"><h4>Total Volunteers</h4><div class="icon blue"><i class="fa-solid fa-users"></i></div></div><h2>@totalVolunteers</h2></div>
-        <div class="card"><div class="card-header"><h4>Active</h4><div class="icon green"><i class="fa-solid fa-check-circle"></i></div></div><h2>@activeCount</h2></div>
-        <div class="card"><div class="card-header"><h4>Pending Applications</h4><div class="icon yellow"><i class="fa-solid fa-clock"></i></div></div><h2>@pendingCount</h2></div>
-        <div class="card"><div class="card-header"><h4>Total Hours</h4><div class="icon purple"><i class="fa-solid fa-calendar-days"></i></div></div><h2>@totalHours</h2></div>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Total Volunteers</h4><div class="stat-icon blue"><i class="fa-solid fa-users"></i></div></div>
+            <div class="stat-num">@totalVolunteers</div>
+            <div class="stat-label">All registrations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Active</h4><div class="stat-icon green"><i class="fa-solid fa-check-circle"></i></div></div>
+            <div class="stat-num">@activeCount</div>
+            <div class="stat-label">Currently serving</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Pending</h4><div class="stat-icon yellow"><i class="fa-solid fa-clock"></i></div></div>
+            <div class="stat-num">@pendingCount</div>
+            <div class="stat-label">Awaiting review</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Total Hours</h4><div class="stat-icon purple"><i class="fa-solid fa-calendar-days"></i></div></div>
+            <div class="stat-num">@totalHours<span style="font-size:16px;font-weight:400;color:#9ca3af;"> h</span></div>
+            <div class="stat-label">Hours contributed</div>
+        </div>
     </div>
 
-    <!-- Pending Applications Section (cards) – admin only -->
-    <div class="table-card">
-        <div class="table-header"><h3>Pending Applications</h3></div>
-        @if (Model.Any(v => v.Status == "Pending"))
-        {
-            foreach (var v in Model.Where(v => v.Status == "Pending").OrderByDescending(v => v.SubmittedAt))
-            {
-                <div class="volunteer-card" data-id="@v.Id">
-                    <div class="volunteer-header">
-                        <h3>@v.FullName</h3>
-                        <span class="app-id">@v.ApplicationId</span>
-                    </div>
-                    <div class="volunteer-contact">
-                        <span><i class="fa-solid fa-envelope"></i> @v.Email</span>
-                        <span><i class="fa-solid fa-phone"></i> @v.Phone</span>
-                    </div>
-                    <div class="volunteer-details">
-                        <span><strong>Location:</strong> @v.Location</span>
-                        <span><strong>Skills:</strong> @v.Skills</span>
-                        <span><strong>Availability:</strong> @v.Availability</span>
-                    </div>
-                    <p class="volunteer-note">"@v.Motivation"</p>
-                    <div class="volunteer-footer">
-                        <span class="submitted">Submitted: @v.SubmittedAt.ToString("yyyy-MM-dd")</span>
-                        <div class="volunteer-actions">
-                            <button class="approve-btn" onclick="updateStatus('@v.Id', 'Active')"><i class="fa-solid fa-check"></i> Approve</button>
-                            <button class="reject-btn-outline" onclick="updateStatus('@v.Id', 'Rejected')">Reject</button>
+    <!-- Pending applications -->
+    @if (Model.Any(v => v.Status == "Pending"))
+    {
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Pending Applications</h3>
+                <span class="badge yellow">@pendingCount awaiting review</span>
+            </div>
+            <div class="pending-grid">
+                @foreach (var v in Model.Where(v => v.Status == "Pending").OrderByDescending(v => v.SubmittedAt))
+                {
+                    var initials = string.Join("", (v.FullName ?? "?").Split(' ').Take(2).Select(w => w[0].ToString().ToUpper()));
+                    <div class="vol-card">
+                        <div class="vol-card-top">
+                            <div>
+                                <h3>@v.FullName</h3>
+                                <span class="ref-code">@v.ApplicationId</span>
+                            </div>
+                            <div class="vol-avatar">@initials</div>
+                        </div>
+                        <div class="vol-contact">
+                            <span><i class="fa-solid fa-envelope"></i> @v.Email</span>
+                            <span><i class="fa-solid fa-phone"></i> @v.Phone</span>
+                        </div>
+                        <div class="vol-details">
+                            <span class="vol-detail-pill"><strong>Location:</strong> @v.Location</span>
+                            <span class="vol-detail-pill"><strong>Skills:</strong> @v.Skills</span>
+                            <span class="vol-detail-pill"><strong>Availability:</strong> @v.Availability</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(v.Motivation))
+                        {
+                            <div class="vol-motivation">"@v.Motivation"</div>
+                        }
+                        <div class="vol-footer">
+                            <span class="vol-submitted">Submitted: @v.SubmittedAt.ToString("dd MMM yyyy")</span>
+                            <div class="vol-actions">
+                                <button class="approve-btn" onclick="updateStatus('@v.Id','Active')">
+                                    <i class="fa-solid fa-check"></i> Approve
+                                </button>
+                                <button class="reject-btn" onclick="updateStatus('@v.Id','Rejected')">
+                                    Reject
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
+        </div>
+    }
+
+    <!-- All volunteers table -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>All Volunteers</h3>
+            <p>@totalVolunteers total registrations</p>
+        </div>
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <i class="fa-solid fa-users" style="font-size:36px;color:#d1d5db;display:block;margin-bottom:12px;"></i>
+                <p>No volunteers registered yet.</p>
+            </div>
         }
         else
         {
-            <p>No pending applications.</p>
-        }
-    </div>
-
-    <!-- All Volunteers Table – admin only -->
-    <div class="table-card" style="margin-top:24px;">
-        <div class="table-header"><h3>All Volunteers</h3></div>
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Contact</th>
-                        <th>Location</th>
-                        <th>Skills</th>
-                        <th>Availability</th>
-                        <th>Hours</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var v in Model.OrderBy(v => v.FullName))
-                    {
-                        <tr data-id="@v.Id">
-                            <td>@v.ApplicationId</td>
-                            <td>@v.FullName</td>
-                            <td>@v.Email<br />@v.Phone</td>
-                            <td>@v.Location</td>
-                            <td><div class="skill-pill">@v.Skills</div></td>
-                            <td>@v.Availability</td>
-                            <td>@v.TotalHours h</td>
-                            <td><span class="badge @(v.Status == "Active" ? "green" : v.Status == "Pending" ? "yellow" : "red")">@v.Status</span></td>
-                            <td><button class="delete-btn" data-id="@v.Id">Delete</button></td>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Location</th>
+                            <th>Skills</th>
+                            <th>Availability</th>
+                            <th>Hours</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model.OrderBy(v => v.FullName))
+                        {
+                            var statusClass = v.Status == "Active" ? "green" : v.Status == "Pending" ? "yellow" : "red";
+                            <tr data-id="@v.Id">
+                                <td><span class="ref-code">@v.ApplicationId</span></td>
+                                <td style="font-weight:600;">@v.FullName</td>
+                                <td style="font-size:12px;color:#6b7280;">@v.Email<br/>@v.Phone</td>
+                                <td style="font-size:12px;">@v.Location</td>
+                                <td><span class="skill-pill">@v.Skills</span></td>
+                                <td style="font-size:12px;">@v.Availability</td>
+                                <td style="font-weight:600;">@v.TotalHours h</td>
+                                <td><span class="badge @statusClass">@v.Status</span></td>
+                                <td><button class="delete-btn" data-id="@v.Id"><i class="fa-solid fa-trash"></i></button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 }
 else
 {
-    <!-- Non‑admin view: show their own application (if any) -->
-    <div class="table-card">
-        <div class="table-header">
-            <h3>@(hasApplied ? "Your Volunteer Application" : "Volunteer Application")</h3>
-        </div>
-        @if (hasApplied)
-        {
-            var myApp = Model.First();
-            <div class="volunteer-card" style="max-width:600px;">
-                <div class="volunteer-header">
-                    <h3>@myApp.FullName</h3>
-                    <span class="app-id">@myApp.ApplicationId</span>
+    <!-- ===== USER VIEW ===== -->
+    @if (hasApplied)
+    {
+        var myApp = Model.First();
+        var initials = string.Join("", (myApp.FullName ?? "?").Split(' ').Take(2).Select(w => w[0].ToString().ToUpper()));
+        var statusClass = myApp.Status == "Active" ? "green" : myApp.Status == "Pending" ? "yellow" : "red";
+
+        <div class="table-card">
+            <div class="table-header"><h3>Your Volunteer Application</h3></div>
+            <div class="my-app-card">
+                <div class="my-app-header">
+                    <div class="my-app-avatar">@initials</div>
+                    <div class="my-app-title">
+                        <strong>@myApp.FullName</strong>
+                        <span>@myApp.ApplicationId</span>
+                    </div>
+                    <span class="badge @statusClass" style="margin-left:auto;">@myApp.Status</span>
                 </div>
-                <div class="volunteer-contact">
-                    <span><i class="fa-solid fa-envelope"></i> @myApp.Email</span>
-                    <span><i class="fa-solid fa-phone"></i> @myApp.Phone</span>
-                </div>
-                <div class="volunteer-details">
-                    <span><strong>Location:</strong> @myApp.Location</span>
-                    <span><strong>Skills:</strong> @myApp.Skills</span>
-                    <span><strong>Availability:</strong> @myApp.Availability</span>
-                </div>
-                <p class="volunteer-note">"@myApp.Motivation"</p>
-                <div class="volunteer-footer">
-                    <span class="submitted">Submitted: @myApp.SubmittedAt.ToString("yyyy-MM-dd")</span>
-                    <span class="badge @(myApp.Status == "Active" ? "green" : myApp.Status == "Pending" ? "yellow" : "red")">@myApp.Status</span>
+
+                @if (myApp.Status == "Pending")
+                {
+                    <div style="background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#a16207;display:flex;align-items:center;gap:8px;">
+                        <i class="fa-solid fa-clock"></i>
+                        Your application is under review. We'll be in touch soon.
+                    </div>
+                }
+                else if (myApp.Status == "Active")
+                {
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#16a34a;display:flex;align-items:center;gap:8px;">
+                        <i class="fa-solid fa-check-circle"></i>
+                        You are an active volunteer. Thank you for serving the community!
+                    </div>
+                }
+                else if (myApp.Status == "Rejected")
+                {
+                    <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#dc2626;display:flex;align-items:center;gap:8px;">
+                        <i class="fa-solid fa-times-circle"></i>
+                        Your application was not accepted. Please contact the parish for more information.
+                    </div>
+                }
+
+                <div class="my-app-details">
+                    <div class="my-app-row"><span>Email</span><strong>@myApp.Email</strong></div>
+                    <div class="my-app-row"><span>Phone</span><strong>@myApp.Phone</strong></div>
+                    <div class="my-app-row"><span>Location</span><strong>@myApp.Location</strong></div>
+                    <div class="my-app-row"><span>Skills</span><strong>@myApp.Skills</strong></div>
+                    <div class="my-app-row"><span>Availability</span><strong>@myApp.Availability</strong></div>
+                    <div class="my-app-row"><span>Submitted</span><strong>@myApp.SubmittedAt.ToString("dd MMM yyyy")</strong></div>
+                    @if (myApp.Status == "Active")
+                    {
+                        <div class="my-app-row"><span>Hours Contributed</span><strong>@myApp.TotalHours h</strong></div>
+                    }
                 </div>
             </div>
-        }
-        else
-        {
-            <div style="text-align:center; padding:32px;">
-                <p>You haven’t submitted a volunteer application yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-card">
+            <div class="empty-state">
+                <i class="fa-solid fa-users" style="font-size:40px;color:#d1d5db;display:block;margin-bottom:12px;"></i>
+                <p>You haven't submitted a volunteer application yet.</p>
                 <button class="primary-btn" onclick="openVolunteerModal()">
                     <i class="fa-solid fa-user-plus"></i> Apply Now
                 </button>
             </div>
-        }
-    </div>
+        </div>
+    }
 }
 
-<!-- ADD VOLUNTEER MODAL (same as original – unchanged) -->
+<!-- ===== VOLUNTEER MODAL ===== -->
 <div id="volunteerModal" class="modal-overlay">
     <div class="volunteer-modal">
         <button class="modal-close" onclick="closeVolunteerModal()">×</button>
-        <h3>Volunteer Application</h3>
-        <p class="request-note">Fill out this form to apply as a volunteer</p>
+        <div class="modal-title">Volunteer Application</div>
+        <div class="modal-subtitle">Fill in your details and we'll review your application.</div>
+
         <form id="volunteerForm">
+            <div class="section-divider">Personal Details</div>
             <div class="form-row">
-                <div><label>Full Name *</label><input type="text" id="fullName" placeholder="John Doe" required /></div>
-                <div><label>Email *</label><input type="email" id="email" placeholder="john@email.com" required /></div>
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" id="fullName" placeholder="John Doe" required/>
+                </div>
+                <div>
+                    <label>Email *</label>
+                    <input type="email" id="email" placeholder="john@email.com" required/>
+                </div>
             </div>
             <div class="form-row">
-                <div><label>Phone Number *</label><input type="tel" id="phone" placeholder="+27 12 345 6789" required /></div>
-                <div><label>Location *</label><input type="text" id="location" placeholder="City, Province" required /></div>
+                <div>
+                    <label>Phone Number *</label>
+                    <input type="tel" id="phone" placeholder="+27 12 345 6789" required/>
+                </div>
+                <div>
+                    <label>Location *</label>
+                    <input type="text" id="location" placeholder="City, Province" required/>
+                </div>
             </div>
+
+            <div class="section-divider">Skills & Availability</div>
             <label>Skills & Expertise *</label>
-            <input type="text" id="skills" placeholder="e.g., Event Planning, Medical Support, Teaching" required />
+            <input type="text" id="skills" placeholder="e.g. Event Planning, Medical Support, Teaching" required/>
 
             <label>Availability *</label>
             <select id="availability" required>
                 <option value="">Select availability</option>
                 <option>Weekdays</option>
                 <option>Weekends</option>
-                <option>Evenings</option>
+                <option>Evenings and weekends</option>
                 <option>Flexible schedule</option>
             </select>
 
+            <div class="section-divider">Motivation</div>
             <label>Why do you want to volunteer? *</label>
-            <textarea id="motivation" placeholder="Tell us about your motivation..." required></textarea>
+            <textarea id="motivation" placeholder="Tell us about your motivation to serve the community…" required></textarea>
+
+            <div class="form-error" id="volError"></div>
 
             <div class="modal-actions">
                 <button type="submit" class="submit-btn">Submit Application</button>
@@ -192,93 +388,61 @@ else
 </div>
 
 <script>
-    // Pass admin flag from server
-    var isAdminFlag = @(isAdmin ? "true" : "false");
+var isAdminFlag = @(isAdmin ? "true" : "false");
 
-    function openVolunteerModal() {
-        document.getElementById("volunteerModal").style.display = "flex";
+function openVolunteerModal()  { document.getElementById("volunteerModal").style.display = "flex"; }
+function closeVolunteerModal() {
+    document.getElementById("volunteerModal").style.display = "none";
+    document.getElementById("volunteerForm").reset();
+    document.getElementById("volError").style.display = "none";
+}
+
+document.getElementById("volunteerForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    var errEl = document.getElementById("volError");
+    errEl.style.display = "none";
+
+    var fullName     = document.getElementById("fullName").value.trim();
+    var email        = document.getElementById("email").value.trim();
+    var phone        = document.getElementById("phone").value.trim();
+    var location     = document.getElementById("location").value.trim();
+    var skills       = document.getElementById("skills").value.trim();
+    var availability = document.getElementById("availability").value;
+    var motivation   = document.getElementById("motivation").value.trim();
+
+    if (!fullName || !email || !phone || !location || !skills || !availability || !motivation) {
+        errEl.textContent = "Please fill in all required fields.";
+        errEl.style.display = "block"; return;
     }
 
-    function closeVolunteerModal() {
-        document.getElementById("volunteerModal").style.display = "none";
-        document.getElementById("volunteerForm").reset();
-        var required = document.querySelectorAll("#volunteerForm [required]");
-        for (var i = 0; i < required.length; i++) {
-            required[i].style.borderColor = "";
-        }
+    var data = { fullName, email, phone, location, skills, availability, motivation };
+
+    try {
+        var res    = await fetch("/Volunteer/Create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        var result = await res.json();
+        if (result.success) { closeVolunteerModal(); location.reload(); }
+        else { errEl.textContent = result.message || "Submission failed."; errEl.style.display = "block"; }
+    } catch(err) {
+        errEl.textContent = "Network error. Please try again.";
+        errEl.style.display = "block";
     }
+});
 
-    // Volunteer form submit handler
-    var volunteerForm = document.getElementById("volunteerForm");
-    volunteerForm.addEventListener("submit", async function(e) {
-        e.preventDefault();
-        var required = volunteerForm.querySelectorAll("[required]");
-        var valid = true;
-        for (var i = 0; i < required.length; i++) {
-            var field = required[i];
-            if (!field.value.trim()) {
-                field.style.borderColor = "red";
-                valid = false;
-            } else {
-                field.style.borderColor = "";
-            }
-        }
-        if (!valid) {
-            alert("Please fill in all required fields.");
-            return;
-        }
+async function updateStatus(id, status) {
+    await fetch("/Volunteer/UpdateStatus?id=" + id + "&status=" + status, { method: "POST" });
+    location.reload();
+}
 
-        var data = {
-            fullName: document.getElementById("fullName").value,
-            email: document.getElementById("email").value,
-            phone: document.getElementById("phone").value,
-            location: document.getElementById("location").value,
-            skills: document.getElementById("skills").value,
-            availability: document.getElementById("availability").value,
-            motivation: document.getElementById("motivation").value
-        };
-
-        try {
-            var response = await fetch("/Volunteer/Create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            var result = await response.json();
-            if (result.success) {
-                alert("Volunteer added successfully!");
-                location.reload();
-            } else {
-                alert("Error: " + result.message);
-            }
-        } catch (err) {
-            alert("Network error: " + err.message);
+document.querySelectorAll(".delete-btn").forEach(function(btn) {
+    btn.addEventListener("click", async function() {
+        if (confirm("Delete this volunteer permanently?")) {
+            await fetch("/Volunteer/Delete?id=" + this.dataset.id, { method: "POST" });
+            location.reload();
         }
     });
-
-    // Admin-only functions
-    if (isAdminFlag === "true") {
-        window.updateStatus = async function(id, status) {
-            await fetch("/Volunteer/UpdateStatus?id=" + id + "&status=" + status, { method: "POST" });
-            location.reload();
-        };
-
-        window.deleteVolunteer = async function(id) {
-            if (confirm("Delete this volunteer?")) {
-                await fetch("/Volunteer/Delete?id=" + id, { method: "POST" });
-                location.reload();
-            }
-        };
-
-        var deleteButtons = document.querySelectorAll(".delete-btn");
-        for (var i = 0; i < deleteButtons.length; i++) {
-            deleteButtons[i].addEventListener("click", async function() {
-                var id = this.getAttribute("data-id");
-                if (confirm("Delete this volunteer?")) {
-                    await fetch("/Volunteer/Delete?id=" + id, { method: "POST" });
-                    location.reload();
-                }
-            });
-        }
-    }
+});
 </script>

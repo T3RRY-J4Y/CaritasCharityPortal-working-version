@@ -2,92 +2,214 @@
     Layout = null;
 }
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>Caritas Login</title>
-    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
-    <style>
-            .error-message {
-                color: #dc2626;
-                font-size: 0.85rem;
-                margin-top: 8px;
-                text-align: center;
-            }
-    </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sign In – Caritas St Thomas More</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#c8102e;--red-dark:#9b0b21;--gold:#c9944b;--cream:#fdf8f3;--dark:#1c1008;--grey:#7a6858;--border:#e8e0d8;}
+body{font-family:'Jost',sans-serif;background:var(--cream);min-height:100vh;display:flex;align-items:stretch}
+.auth-page{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;width:100%}
+
+.auth-panel{
+  background:linear-gradient(145deg,#1c0a0a 0%,#3a0d1a 60%,#1c0a0a 100%);
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:48px;position:relative;overflow:hidden;
+}
+.auth-panel::before{
+  content:'';position:absolute;inset:0;
+  background:url('/images/outreach6.jpg') center/cover no-repeat;
+  opacity:0.15;
+}
+.panel-top{position:relative;z-index:1}
+.panel-brand{display:flex;align-items:center;gap:12px;margin-bottom:64px}
+.panel-logo{width:44px;height:44px;object-fit:contain}
+.panel-wordmark strong{display:block;font-family:'Cormorant Garamond',serif;font-size:20px;color:#fff;font-weight:700}
+.panel-wordmark span{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:.5px;text-transform:uppercase}
+.panel-heading{font-family:'Cormorant Garamond',serif;font-size:clamp(34px,4vw,52px);font-weight:700;color:#fff;line-height:1.1;margin-bottom:20px}
+.panel-heading em{color:var(--gold);font-style:normal}
+.panel-sub{font-size:15px;color:rgba(255,255,255,0.65);line-height:1.75;max-width:380px}
+.panel-stats{position:relative;z-index:1;display:flex;gap:32px}
+.pstat-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--gold);line-height:1}
+.pstat-label{font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+.auth-form-side{
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:48px;background:var(--cream);overflow-y:auto;
+}
+.auth-form-inner{width:100%;max-width:420px}
+.auth-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--grey);text-decoration:none;margin-bottom:40px;transition:color .2s}
+.auth-back:hover{color:var(--red)}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:var(--dark);margin-bottom:6px}
+.auth-subtitle{font-size:14px;color:var(--grey);margin-bottom:32px}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--dark);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input{
+  width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:6px;
+  font-family:'Jost',sans-serif;font-size:14px;color:var(--dark);background:#fff;
+  transition:border-color .2s,box-shadow .2s;outline:none;
+}
+.field input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,0.08)}
+.field input::placeholder{color:#bbb}
+
+.role-label{font-size:12px;font-weight:700;color:var(--dark);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.role-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.role-card{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  border:1.5px solid var(--border);border-radius:8px;cursor:pointer;
+  transition:all .2s;background:#fff;
+}
+.role-card input[type=radio]{display:none}
+.role-icon{
+  width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;background:#f3f4f6;color:#6b7280;transition:all .2s;flex-shrink:0;
+}
+.role-name{font-size:13px;font-weight:600;color:var(--dark)}
+.role-desc{font-size:11px;color:var(--grey)}
+.role-card.selected{border-color:var(--red);background:#fff8f8}
+.role-card.selected .role-icon{background:var(--red);color:#fff}
+
+.forgot-row{text-align:right;margin:-8px 0 20px}
+.forgot-row a{font-size:12px;color:var(--grey);text-decoration:none}
+.forgot-row a:hover{color:var(--red)}
+
+.btn-auth{
+  width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:6px;
+  font-family:'Jost',sans-serif;font-size:15px;font-weight:700;cursor:pointer;
+  transition:all .25s;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-auth:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,16,46,0.25)}
+.auth-error{color:#dc2626;font-size:12px;margin-top:10px;text-align:center;min-height:18px}
+.auth-footer{text-align:center;font-size:13px;color:var(--grey);margin-top:24px}
+.auth-footer a{color:var(--red);font-weight:600;text-decoration:none}
+.auth-footer a:hover{text-decoration:underline}
+
+@@media(max-width:768px){
+  .auth-page{grid-template-columns:1fr}
+  .auth-panel{display:none}
+  .auth-form-side{padding:32px 24px}
+}
+</style>
 </head>
 <body>
-    <div class="login-page">
-        <div class="login-container">
-            <img src="~/images/logo.png" class="logo" alt="Caritas Logo" />
-            <h1 class="brand-title">Caritas NGO</h1>
-            <p class="brand-subtitle">Donation & Assistance Management</p>
-            <div class="login-card">
-                <h3>Welcome Back</h3>
-                <p class="login-subtext">Sign in to your account to continue</p>
-                <form id="loginForm">
-                    <label>Email</label>
-                    <input type="email" id="email" placeholder="your.email@example.com" required />
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="••••••••" required />
-                    <label class="login-as">Login As</label>
-                    <div class="roles">
-                        <label class="role-option">
-                            <input type="radio" name="role" value="User" checked />
-                            <span>User</span>
-                        </label>
-                        <label class="role-option">
-                            <input type="radio" name="role" value="Administrator" />
-                            <span>Administrator</span>
-                        </label>
-                    </div>
-                    <button type="submit" class="login-btn">Sign In</button>
-                    <div id="errorMsg" class="error-message"></div>
-                </form>
-                <div class="login-links">
-                    <a href="/Account/ForgotPassword">Forgot password?</a>
-                </div>
-            </div>
-            <div class="register-link">
-                <span>Don't have an account?</span>
-                <a href="/Account/Register">Register here</a>
-            </div>
-            <div class="about-link">
-                <a href="/Home/About">About Caritas</a>
-            </div>
+<div class="auth-page">
+
+  <div class="auth-panel">
+    <div class="panel-top">
+      <div class="panel-brand">
+        <img src="~/images/logo.png" alt="Caritas Logo" class="panel-logo"/>
+        <div class="panel-wordmark">
+          <strong>Caritas</strong>
+          <span>St Thomas More</span>
         </div>
+      </div>
+      <h2 class="panel-heading">Serving the Community<br/>with <em>Love & Dignity</em></h2>
+      <p class="panel-sub">Every donation tracked. Every request heard. Every volunteer valued. Sign in to be part of the mission.</p>
     </div>
-    <script>
-            const roleCredentials = {
-                "User": { email: "user@caritas.com", password: "User@123" },
-                "Administrator": { email: "admin@caritas.com", password: "Admin@123" }
-            };
-            document.getElementById("loginForm").addEventListener("submit", async function(e) {
-                e.preventDefault();
-                const selectedRole = document.querySelector('input[name="role"]:checked').value;
-                const creds = roleCredentials[selectedRole];
-                const emailInput = document.getElementById("email").value.trim();
-                const passwordInput = document.getElementById("password").value.trim();
-                const finalEmail = emailInput !== "" ? emailInput : creds.email;
-                const finalPassword = passwordInput !== "" ? passwordInput : creds.password;
-                // Send selected role along with credentials
-                const data = { email: finalEmail, password: finalPassword, selectedRole: selectedRole };
-                try {
-                    const response = await fetch("/Account/Login", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await response.json();
-                    if (response.ok && result.success) {
-                        window.location.href = result.redirectUrl;
-                    } else {
-                        document.getElementById("errorMsg").innerText = result.message || "Invalid email or password.";
-                    }
-                } catch (error) {
-                    document.getElementById("errorMsg").innerText = "Network error. Please try again.";
-                }
-            });
-    </script>
+    <div class="panel-stats">
+      <div><div class="pstat-num">500+</div><div class="pstat-label">Food Parcels</div></div>
+      <div><div class="pstat-num">50+</div><div class="pstat-label">Volunteers</div></div>
+      <div><div class="pstat-num">300+</div><div class="pstat-label">Families Helped</div></div>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-form-inner">
+
+      <a href="/Home/Index" class="auth-back">
+        <i class="fa-solid fa-arrow-left"></i> Back to Home
+      </a>
+
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Sign in to your account to continue</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="your.email@example.com" required/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" required/>
+        </div>
+        <div class="forgot-row">
+          <a href="/Account/ForgotPassword">Forgot password?</a>
+        </div>
+        <div class="role-label">Sign in as</div>
+        <div class="role-group">
+          <label class="role-card selected" id="card-user" onclick="selectRole('User')">
+            <input type="radio" name="role" value="User" checked/>
+            <div class="role-icon"><i class="fa-solid fa-user"></i></div>
+            <div>
+              <div class="role-name">Member</div>
+              <div class="role-desc">Donate & request help</div>
+            </div>
+          </label>
+          <label class="role-card" id="card-administrator" onclick="selectRole('Administrator')">
+            <input type="radio" name="role" value="Administrator"/>
+            <div class="role-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div>
+              <div class="role-name">Administrator</div>
+              <div class="role-desc">Manage the portal</div>
+            </div>
+          </label>
+        </div>
+        <button type="submit" class="btn-auth">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In
+        </button>
+        <div id="errorMsg" class="auth-error"></div>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="/Account/Register">Register here</a>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+function selectRole(role) {
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('card-' + role.toLowerCase()).classList.add('selected');
+  document.querySelector('input[value="' + role + '"]').checked = true;
+}
+
+const roleCredentials = {
+  "User": { email: "user@caritas.com", password: "User@123" },
+  "Administrator": { email: "admin@caritas.com", password: "Admin@123" }
+};
+
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const selectedRole = document.querySelector('input[name="role"]:checked').value;
+  const creds = roleCredentials[selectedRole];
+  const emailInput = document.getElementById("email").value.trim();
+  const passwordInput = document.getElementById("password").value.trim();
+  const finalEmail = emailInput !== "" ? emailInput : creds.email;
+  const finalPassword = passwordInput !== "" ? passwordInput : creds.password;
+  const data = { email: finalEmail, password: finalPassword, selectedRole: selectedRole };
+  try {
+    const response = await fetch("/Account/Login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    if (response.ok && result.success) {
+      window.location.href = result.redirectUrl;
+    } else {
+      document.getElementById("errorMsg").innerText = result.message || "Invalid email or password.";
+    }
+  } catch (error) {
+    document.getElementById("errorMsg").innerText = "Network error. Please try again.";
+  }
+});
+</script>
 </body>
 </html>

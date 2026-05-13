@@ -38,8 +38,8 @@ namespace CaritasCharityPortal.Models
         public string? Email { get; set; }
 
         public string DisplayQuantityOrAmount => DonationType == "Money"
-            ? (Amount?.ToString("C") ?? "R0")
-            : (Quantity?.ToString() ?? "0");
+            ? (Amount.HasValue ? $"R {Amount.Value:N2}" : "R 0.00")
+            : (Quantity.HasValue ? Quantity.Value.ToString() : "0");
     }
 
     public class DonationCreateDto

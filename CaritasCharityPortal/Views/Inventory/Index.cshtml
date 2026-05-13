@@ -3,12 +3,97 @@
     ViewData["Title"] = "Inventory";
 }
 
+<style>
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px;transition:box-shadow .2s}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat-card-header h4{font-size:12px;font-weight:600;color:#7a6858;text-transform:uppercase;letter-spacing:.5px}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.stat-icon.blue{background:#dbeafe;color:#1d4ed8}
+.stat-icon.green{background:#dcfce7;color:#16a34a}
+.stat-icon.orange{background:#ffedd5;color:#ea580c}
+.stat-icon.red{background:#fee2e2;color:#dc2626}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#1c1008;line-height:1}
+.stat-label{font-size:11px;color:#9ca3af;margin-top:4px}
+
+/* Alerts */
+.inventory-alerts{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.stock-alert{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:8px;font-size:13px}
+.stock-alert.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+.stock-alert.danger{background:#fff1f2;border:1px solid #fecdd3;color:#9f1239}
+.stock-alert i{font-size:16px;margin-top:1px;flex-shrink:0}
+.stock-alert h3{font-size:13px;font-weight:700;margin-bottom:2px}
+.stock-alert p{font-size:12px;opacity:.85}
+
+/* Table */
+.table-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:24px;margin-bottom:24px}
+.table-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px}
+.table-header h3{font-size:15px;font-weight:700;color:#1c1008;margin-bottom:2px}
+.table-header p{font-size:12px;color:#9ca3af}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;border-bottom:2px solid #f3f4f6}
+.data-table td{padding:12px;border-bottom:1px solid #f9fafb;color:#374151;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fdf8f3}
+.ref-code{font-family:monospace;font-size:11px;background:#f3f4f6;padding:2px 6px;border-radius:4px;color:#374151}
+.cat-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.cat-chip.orange{background:#ffedd5;color:#ea580c}
+.cat-chip.blue{background:#dbeafe;color:#1d4ed8}
+.cat-chip.purple{background:#f3e8ff;color:#7c3aed}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge.green{background:#dcfce7;color:#16a34a}
+.badge.yellow{background:#fef9c3;color:#a16207}
+.badge.red{background:#fee2e2;color:#dc2626}
+
+/* Quantity display */
+.qty-display{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:14px}
+.qty-bar{height:4px;border-radius:100px;background:#f3f4f6;width:60px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
+.qty-fill{height:100%;border-radius:100px}
+
+/* Buttons */
+.primary-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.primary-btn:hover{background:#9b0b21;transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,16,46,0.25)}
+.secondary-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#fff;color:#374151;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.secondary-btn:hover{border-color:#c8102e;color:#c8102e}
+.delete-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:#fee2e2;color:#dc2626;transition:background .2s}
+.delete-btn:hover{background:#fecaca}
+
+/* Empty */
+.empty-state{text-align:center;padding:48px 24px}
+.empty-state p{font-size:14px;color:#9ca3af;margin-bottom:16px}
+
+/* ===== MODALS ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(28,16,8,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.stock-modal{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.18)}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#9ca3af;cursor:pointer;line-height:1;transition:color .2s}
+.modal-close:hover{color:#1c1008}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.modal-subtitle{font-size:12px;color:#7a6858;margin-bottom:20px}
+.stock-modal label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1c1008;margin-bottom:5px;margin-top:14px}
+.stock-modal input,.stock-modal select{width:100%;padding:10px 12px;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;color:#1c1008;background:#fff;outline:none;transition:border-color .2s}
+.stock-modal input:focus,.stock-modal select:focus{border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,0.08)}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.submit-btn{flex:1;padding:12px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.submit-btn:hover{background:#9b0b21}
+.cancel-btn{padding:12px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.cancel-btn:hover{background:#e5e7eb}
+.form-error{color:#dc2626;font-size:12px;margin-top:8px;display:none}
+</style>
+
 <div class="page-header">
     <div>
         <h1 class="page-title">Inventory Management</h1>
-        <p class="page-subtitle">Track donated items, stock levels, and distributions.</p>
+        <p class="page-subtitle">Track donated items, stock levels and distributions.</p>
     </div>
-    <div style="display:flex; gap:10px;">
+    <div style="display:flex;gap:10px;">
         <button class="primary-btn" onclick="openAddStockModal()">
             <i class="fa-solid fa-plus"></i> Add Stock
         </button>
@@ -18,89 +103,143 @@
     </div>
 </div>
 
+<!-- Stats -->
 <div class="stats">
-    <div class="card"><div class="card-header"><h4>Total Items</h4><div class="icon blue"><i class="fa-solid fa-cube"></i></div></div><h2>@Model.TotalItems</h2></div>
-    <div class="card"><div class="card-header"><h4>Low Stock Items</h4><div class="icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div></div><h2>@Model.LowStockCount</h2></div>
-    <div class="card"><div class="card-header"><h4>Critical Stock</h4><div class="icon red"><i class="fa-solid fa-arrow-trend-down"></i></div></div><h2>@Model.CriticalStockCount</h2></div>
-    <div class="card"><div class="card-header"><h4>Warehouses</h4><div class="icon green"><i class="fa-solid fa-cube"></i></div></div><h2>@Model.WarehouseCount</h2></div>
+    <div class="stat-card">
+        <div class="stat-card-header"><h4>Total Items</h4><div class="stat-icon blue"><i class="fa-solid fa-cubes"></i></div></div>
+        <div class="stat-num">@Model.TotalItems</div>
+        <div class="stat-label">Items in inventory</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header"><h4>Low Stock</h4><div class="stat-icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div></div>
+        <div class="stat-num">@Model.LowStockCount</div>
+        <div class="stat-label">Items running low</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header"><h4>Critical Stock</h4><div class="stat-icon red"><i class="fa-solid fa-arrow-trend-down"></i></div></div>
+        <div class="stat-num">@Model.CriticalStockCount</div>
+        <div class="stat-label">Needs immediate restock</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header"><h4>Warehouses</h4><div class="stat-icon green"><i class="fa-solid fa-warehouse"></i></div></div>
+        <div class="stat-num">@Model.WarehouseCount</div>
+        <div class="stat-label">Storage locations</div>
+    </div>
 </div>
 
-<div class="inventory-alerts">
-    @foreach (var alert in Model.Alerts)
-    {
-        <div class="stock-alert @alert.Type">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <div>
-                <h3>@alert.Title</h3>
-                <p>@alert.Message</p>
+<!-- Alerts -->
+@if (Model.Alerts.Any())
+{
+    <div class="inventory-alerts">
+        @foreach (var alert in Model.Alerts)
+        {
+            <div class="stock-alert @alert.Type">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    <h3>@alert.Title</h3>
+                    <p>@alert.Message</p>
+                </div>
             </div>
+        }
+    </div>
+}
+
+<!-- Inventory table -->
+<div class="table-card">
+    <div class="table-header">
+        <div>
+            <h3>Inventory Items</h3>
+            <p>Current donated items available in stock.</p>
+        </div>
+    </div>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="empty-state">
+            <i class="fa-solid fa-box-open" style="font-size:36px;color:#d1d5db;display:block;margin-bottom:12px;"></i>
+            <p>No inventory items yet.</p>
+            <button class="primary-btn" onclick="openAddStockModal()">
+                <i class="fa-solid fa-plus"></i> Add First Item
+            </button>
+        </div>
+    }
+    else
+    {
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Item Code</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Location</th>
+                        <th>Last Updated</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        var statusClass = item.Quantity <= 5 ? "red" : item.Quantity <= 20 ? "yellow" : "green";
+                        var statusText  = item.Quantity <= 5 ? "Critical" : item.Quantity <= 20 ? "Low Stock" : "Available";
+                        var catClass    = item.Category == "Food Parcels" ? "orange" : item.Category == "Clothing" ? "blue" : "purple";
+                        var catIcon     = item.Category == "Food Parcels" ? "fa-box" : item.Category == "Clothing" ? "fa-shirt" : "fa-bed";
+                        var fillPct     = Math.Min(100, (item.Quantity / 50.0) * 100);
+                        var fillColor   = item.Quantity <= 5 ? "#dc2626" : item.Quantity <= 20 ? "#eab308" : "#16a34a";
+                        <tr data-id="@item.Id">
+                            <td><span class="ref-code">@item.ItemCode</span></td>
+                            <td>
+                                <span class="cat-chip @catClass">
+                                    <i class="fa-solid @catIcon"></i> @item.Category
+                                </span>
+                            </td>
+                            <td style="max-width:200px;white-space:normal;font-size:12px;">@item.Description</td>
+                            <td>
+                                <span class="qty-display">@item.Quantity</span>
+                                <span class="qty-bar"><span class="qty-fill" style="width:@(fillPct)%;background:@fillColor;"></span></span>
+                            </td>
+                            <td style="font-size:12px;color:#6b7280;">@(item.StorageLocation ?? "–")</td>
+                            <td style="font-size:12px;">@item.LastUpdated.ToString("dd MMM yyyy")</td>
+                            <td><span class="badge @statusClass">@statusText</span></td>
+                            <td>
+                                <button class="delete-btn" data-id="@item.Id">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
 </div>
 
-<div class="table-card">
-    <div class="table-header">
-        <h3>Inventory Items</h3>
-        <p>Current donated items available in stock.</p>
-    </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Item Code</th>
-                <th>Category</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Last Updated</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
-                string statusClass = item.Quantity <= 5 ? "red" : (item.Quantity <= 20 ? "yellow" : "green");
-                string statusText = item.Quantity <= 5 ? "Critical" : (item.Quantity <= 20 ? "Low Stock" : "Available");
-                <tr data-id="@item.Id">
-                    <td>@item.ItemCode</td>
-                    <td>@item.Category</td>
-                    <td>@item.Description</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.LastUpdated.ToString("dd MMM yyyy")</td>
-                    <td><span class="badge @statusClass">@statusText</span></td>
-                    <td>
-                        <button class="delete-btn" data-id="@item.Id" style="background:#fee2e2;color:#dc2626;border:none;padding:4px 10px;border-radius:6px;">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
 <!-- ADD STOCK MODAL -->
 <div id="addStockModal" class="modal-overlay">
-    <div class="request-modal">
+    <div class="stock-modal">
         <button class="modal-close" onclick="closeAddStockModal()">×</button>
-        <h3>Add Stock</h3>
-        <p class="request-note">Add new inventory item</p>
+        <div class="modal-title">Add Stock</div>
+        <div class="modal-subtitle">Add a new item or restock an existing category.</div>
         <form id="addStockForm">
-            <label>Category</label>
+            <label>Category *</label>
             <select id="addCategory" required>
                 <option value="">Select category</option>
                 <option>Food Parcels</option>
                 <option>Clothing</option>
                 <option>Blankets</option>
             </select>
-            <label>Description</label>
-            <input type="text" id="addDescription" placeholder="Item description" required />
-            <label>Quantity</label>
-            <input type="number" id="addQuantity" placeholder="Enter quantity" required />
-            <label>Storage Location</label>
+            <label>Description *</label>
+            <input type="text" id="addDescription" placeholder="e.g. Canned goods, Winter jackets" required/>
+            <label>Quantity *</label>
+            <input type="number" id="addQuantity" placeholder="Enter quantity" min="1" required/>
+            <label>Storage Location *</label>
             <select id="addLocation" required>
                 <option value="">Select location</option>
                 <option>Warehouse A</option>
                 <option>Warehouse B</option>
                 <option>Warehouse C</option>
             </select>
+            <div class="form-error" id="addError"></div>
             <div class="modal-actions">
                 <button type="submit" class="submit-btn">Add Stock</button>
                 <button type="button" class="cancel-btn" onclick="closeAddStockModal()">Cancel</button>
@@ -111,21 +250,22 @@
 
 <!-- REMOVE STOCK MODAL -->
 <div id="removeStockModal" class="modal-overlay">
-    <div class="request-modal">
+    <div class="stock-modal">
         <button class="modal-close" onclick="closeRemoveStockModal()">×</button>
-        <h3>Remove Stock</h3>
-        <p class="request-note">Select an item and enter quantity to remove</p>
+        <div class="modal-title">Remove Stock</div>
+        <div class="modal-subtitle">Select an item and enter the quantity to remove.</div>
         <form id="removeStockForm">
-            <label>Select Item</label>
+            <label>Select Item *</label>
             <select id="removeItemId" required>
                 <option value="">Choose an item</option>
                 @foreach (var item in Model.Items)
                 {
-                    <option value="@item.Id">@item.ItemCode - @item.Description (@item.Quantity in stock)</option>
+                    <option value="@item.Id">@item.ItemCode – @item.Description (@item.Quantity in stock)</option>
                 }
             </select>
-            <label>Quantity to Remove</label>
-            <input type="number" id="removeQuantity" placeholder="Enter quantity" required />
+            <label>Quantity to Remove *</label>
+            <input type="number" id="removeQuantity" placeholder="Enter quantity" min="1" required/>
+            <div class="form-error" id="removeError"></div>
             <div class="modal-actions">
                 <button type="submit" class="submit-btn">Remove Stock</button>
                 <button type="button" class="cancel-btn" onclick="closeRemoveStockModal()">Cancel</button>
@@ -135,64 +275,58 @@
 </div>
 
 <script>
-    function openAddStockModal() { document.getElementById("addStockModal").style.display = "flex"; }
-    function closeAddStockModal() { document.getElementById("addStockModal").style.display = "none"; document.getElementById("addStockForm").reset(); }
-    function openRemoveStockModal() { document.getElementById("removeStockModal").style.display = "flex"; }
-    function closeRemoveStockModal() { document.getElementById("removeStockModal").style.display = "none"; document.getElementById("removeStockForm").reset(); }
+function openAddStockModal()    { document.getElementById("addStockModal").style.display = "flex"; }
+function closeAddStockModal()   { document.getElementById("addStockModal").style.display = "none"; document.getElementById("addStockForm").reset(); document.getElementById("addError").style.display="none"; }
+function openRemoveStockModal() { document.getElementById("removeStockModal").style.display = "flex"; }
+function closeRemoveStockModal(){ document.getElementById("removeStockModal").style.display = "none"; document.getElementById("removeStockForm").reset(); document.getElementById("removeError").style.display="none"; }
 
-    // Add stock
-    document.getElementById("addStockForm").addEventListener("submit", async function(e) {
-        e.preventDefault();
-        var data = {
-            category: document.getElementById("addCategory").value,
-            description: document.getElementById("addDescription").value,
-            quantity: parseInt(document.getElementById("addQuantity").value),
-            storageLocation: document.getElementById("addLocation").value
-        };
-        try {
-            var response = await fetch("/Inventory/AddStock", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            var result = await response.json();
-            if (result.success) {
-                alert("Stock added successfully!");
-                location.reload();
-            } else {
-                alert("Error: " + result.message);
-            }
-        } catch (err) { alert("Network error: " + err.message); }
-    });
-
-    // Remove stock
-    document.getElementById("removeStockForm").addEventListener("submit", async function(e) {
-        e.preventDefault();
-        var id = document.getElementById("removeItemId").value;
-        var quantity = parseInt(document.getElementById("removeQuantity").value);
-        if (!id) { alert("Please select an item."); return; }
-        if (quantity <= 0) { alert("Quantity must be positive."); return; }
-        try {
-            var response = await fetch(`/Inventory/RemoveStock?id=${id}&quantity=${quantity}`, { method: "POST" });
-            var result = await response.json();
-            if (result.success) {
-                alert("Stock removed successfully!");
-                location.reload();
-            } else {
-                alert("Error: " + result.message);
-            }
-        } catch (err) { alert("Network error: " + err.message); }
-    });
-
-    // Delete item
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-        btn.addEventListener("click", async function() {
-            if (confirm("Delete this inventory item permanently?")) {
-                var id = this.dataset.id;
-                var response = await fetch(`/Inventory/Delete?id=${id}`, { method: "POST" });
-                if (response.ok) location.reload();
-                else alert("Delete failed.");
-            }
+document.getElementById("addStockForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    var errEl = document.getElementById("addError");
+    errEl.style.display = "none";
+    var data = {
+        category:        document.getElementById("addCategory").value,
+        description:     document.getElementById("addDescription").value.trim(),
+        quantity:        parseInt(document.getElementById("addQuantity").value),
+        storageLocation: document.getElementById("addLocation").value
+    };
+    if (!data.category || !data.description || !data.quantity || !data.storageLocation) {
+        errEl.textContent = "Please fill in all fields."; errEl.style.display = "block"; return;
+    }
+    try {
+        var res = await fetch("/Inventory/AddStock", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
         });
+        var result = await res.json();
+        if (result.success) { closeAddStockModal(); location.reload(); }
+        else { errEl.textContent = result.message || "Failed to add stock."; errEl.style.display = "block"; }
+    } catch(err) { errEl.textContent = "Network error. Please try again."; errEl.style.display = "block"; }
+});
+
+document.getElementById("removeStockForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    var errEl = document.getElementById("removeError");
+    errEl.style.display = "none";
+    var id  = document.getElementById("removeItemId").value;
+    var qty = parseInt(document.getElementById("removeQuantity").value);
+    if (!id)    { errEl.textContent = "Please select an item.";        errEl.style.display = "block"; return; }
+    if (qty<=0) { errEl.textContent = "Quantity must be at least 1.";  errEl.style.display = "block"; return; }
+    try {
+        var res = await fetch("/Inventory/RemoveStock?id=" + id + "&quantity=" + qty, { method: "POST" });
+        var result = await res.json();
+        if (result.success) { closeRemoveStockModal(); location.reload(); }
+        else { errEl.textContent = result.message || "Failed to remove stock."; errEl.style.display = "block"; }
+    } catch(err) { errEl.textContent = "Network error. Please try again."; errEl.style.display = "block"; }
+});
+
+document.querySelectorAll(".delete-btn").forEach(function(btn) {
+    btn.addEventListener("click", async function() {
+        if (confirm("Delete this inventory item permanently?")) {
+            var res = await fetch("/Inventory/Delete?id=" + this.dataset.id, { method: "POST" });
+            if (res.ok) location.reload();
+        }
     });
+});
 </script>

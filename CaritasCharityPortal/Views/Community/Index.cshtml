@@ -5,17 +5,114 @@
 
     string StatusBadgeClass(string status) => status switch
     {
-        "Open" => "yellow",
+        "Open"                => "yellow",
         "Partially Fulfilled" => "orange",
-        "Fulfilled" => "green",
-        _ => "gray"
+        "Fulfilled"           => "green",
+        _                     => "grey"
     };
 }
+
+<style>
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px;transition:box-shadow .2s}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat-card-header h4{font-size:12px;font-weight:600;color:#7a6858;text-transform:uppercase;letter-spacing:.5px}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.stat-icon.blue{background:#dbeafe;color:#1d4ed8}
+.stat-icon.green{background:#dcfce7;color:#16a34a}
+.stat-icon.orange{background:#ffedd5;color:#ea580c}
+.stat-icon.red{background:#fee2e2;color:#dc2626}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#1c1008;line-height:1}
+.stat-label{font-size:11px;color:#9ca3af;margin-top:4px}
+
+/* Filter bar */
+.filter-card{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:16px 20px;margin-bottom:20px;flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af}
+.filter-group select{padding:8px 12px;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;color:#374151;background:#fff;outline:none;cursor:pointer;transition:border-color .2s}
+.filter-group select:focus{border-color:#c8102e}
+.urgent-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid #e8e0d8;border-radius:6px;background:#fff;color:#374151;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:16px}
+.urgent-btn:hover{border-color:#dc2626;color:#dc2626}
+.urgent-btn.active{background:#dc2626;color:#fff;border-color:#dc2626}
+
+/* Post cards */
+.posts-grid{display:flex;flex-direction:column;gap:14px}
+.request-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px;transition:box-shadow .2s}
+.request-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.request-card.urgent-card{border-left:3px solid #dc2626}
+.request-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+.avatar{width:40px;height:40px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:16px;color:#9ca3af;flex-shrink:0}
+.avatar.urgent-avatar{background:#fee2e2;color:#dc2626}
+.request-info{flex:1}
+.request-title{font-size:14px;font-weight:700;color:#1c1008;margin-bottom:6px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge.green{background:#dcfce7;color:#16a34a}
+.badge.yellow{background:#fef9c3;color:#a16207}
+.badge.orange{background:#ffedd5;color:#ea580c}
+.badge.red{background:#fee2e2;color:#dc2626}
+.badge.grey{background:#f3f4f6;color:#6b7280}
+.badge.urgent{background:#dc2626;color:#fff}
+.tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:600;background:#f3f4f6;color:#374151}
+.meta{font-size:11px;color:#9ca3af}
+.description{font-size:13px;color:#374151;line-height:1.65;margin-bottom:10px}
+.details{font-size:12px;color:#9ca3af;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px}
+.details strong{color:#4a3728}
+.detail-pill{display:inline-flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid #f3f4f6;border-radius:6px;padding:3px 8px;font-size:11px}
+
+/* Post actions */
+.post-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-help{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-help:hover{background:#9b0b21}
+.btn-responses{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#fff;color:#374151;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-responses:hover{border-color:#c8102e;color:#c8102e}
+.btn-delete{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background .2s}
+.btn-delete:hover{background:#fecaca}
+.status-select{padding:6px 10px;border-radius:6px;border:1.5px solid #e8e0d8;background:#fff;font-family:'Jost',sans-serif;font-size:12px;color:#374151;cursor:pointer;outline:none;transition:border-color .2s}
+.status-select:focus{border-color:#c8102e}
+
+/* Empty */
+.empty-state{text-align:center;padding:48px 24px}
+.empty-state p{font-size:14px;color:#9ca3af;margin-bottom:16px}
+
+/* Primary btn */
+.primary-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.primary-btn:hover{background:#9b0b21;transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,16,46,0.25)}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(28,16,8,0.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.community-modal{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.18)}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;color:#9ca3af;cursor:pointer;line-height:1;transition:color .2s}
+.modal-close:hover{color:#1c1008}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.modal-subtitle{font-size:12px;color:#7a6858;margin-bottom:20px}
+.community-modal label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1c1008;margin-bottom:5px;margin-top:14px}
+.community-modal input,.community-modal textarea,.community-modal select{width:100%;padding:10px 12px;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;color:#1c1008;background:#fff;outline:none;transition:border-color .2s}
+.community-modal input:focus,.community-modal textarea:focus,.community-modal select:focus{border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,0.08)}
+.community-modal textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.note-text{font-size:11px;color:#9ca3af;margin-top:4px}
+.urgent-row{display:flex;align-items:center;gap:10px;margin:14px 0;padding:12px 14px;background:#fff8f8;border:1px solid #fecaca;border-radius:8px}
+.urgent-row input{width:auto;margin:0;flex-shrink:0}
+.urgent-row span{font-size:13px;color:#dc2626;font-weight:600}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.submit-btn{flex:1;padding:12px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.submit-btn:hover{background:#9b0b21}
+.cancel-btn{padding:12px 20px;background:#f3f4f6;color:#374151;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s}
+.cancel-btn:hover{background:#e5e7eb}
+.form-error{color:#dc2626;font-size:12px;margin-top:8px;display:none}
+</style>
 
 <div class="page-header">
     <div>
         <h1 class="page-title">Community Board</h1>
-        <p class="page-subtitle">View and respond to community assistance requests</p>
+        <p class="page-subtitle">View and respond to community assistance requests.</p>
     </div>
     <button class="primary-btn" onclick="openCommunityModal()">
         <i class="fa-solid fa-plus"></i> Post Request
@@ -25,17 +122,33 @@
 @if (isAdmin)
 {
     <div class="stats">
-        <div class="card"><div class="card-header"><h4>Total Posts</h4><div class="icon blue"><i class="fa-regular fa-comment"></i></div></div><h2>@Model.TotalPosts</h2></div>
-        <div class="card"><div class="card-header"><h4>Total Responses</h4><div class="icon green"><i class="fa-regular fa-heart"></i></div></div><h2>@Model.TotalResponses</h2></div>
-        <div class="card"><div class="card-header"><h4>Active Requests</h4><div class="icon orange"><i class="fa-regular fa-clock"></i></div></div><h2>@Model.ActiveRequests</h2></div>
-        <div class="card"><div class="card-header"><h4>Urgent Posts</h4><div class="icon red"><i class="fa-solid fa-exclamation"></i></div></div><h2>@Model.UrgentPosts</h2></div>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Total Posts</h4><div class="stat-icon blue"><i class="fa-regular fa-comment"></i></div></div>
+            <div class="stat-num">@Model.TotalPosts</div>
+            <div class="stat-label">All community posts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Total Responses</h4><div class="stat-icon green"><i class="fa-regular fa-heart"></i></div></div>
+            <div class="stat-num">@Model.TotalResponses</div>
+            <div class="stat-label">Help offers received</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Active Requests</h4><div class="stat-icon orange"><i class="fa-regular fa-clock"></i></div></div>
+            <div class="stat-num">@Model.ActiveRequests</div>
+            <div class="stat-label">Still open</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header"><h4>Urgent Posts</h4><div class="stat-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div></div>
+            <div class="stat-num">@Model.UrgentPosts</div>
+            <div class="stat-label">Need immediate attention</div>
+        </div>
     </div>
 }
 
-<!-- FILTER BAR (static – can be extended) -->
+<!-- Filter bar -->
 <div class="filter-card">
     <div class="filter-group">
-        <label>All Types</label>
+        <label>Type</label>
         <select id="typeFilter">
             <option>All Types</option>
             <option>Food Parcels</option>
@@ -46,7 +159,7 @@
         </select>
     </div>
     <div class="filter-group">
-        <label>All Status</label>
+        <label>Status</label>
         <select id="statusFilter">
             <option>All Status</option>
             <option>Open</option>
@@ -59,100 +172,154 @@
     </button>
 </div>
 
-<div id="postsContainer">
-    @foreach (var post in Model.Posts)
-    {
-        <div class="request-card" data-post-id="@post.Id" data-type="@post.AssistanceType" data-status="@post.Status" data-urgent="@post.IsUrgent.ToString().ToLower()">
-            <div class="request-header">
-                <div class="avatar"><i class="fa-regular fa-user"></i></div>
-                <div class="request-info">
-                    <h3 class="request-title">
-                        @(post.IsUrgent ? "Urgent: " : "")@post.AssistanceType Assistance Needed
-                    </h3>
-                    <div class="badges">
-                        @if (post.IsUrgent) { <span class="badge urgent">Urgent</span> }
-                        <span class="tag">@post.AssistanceType</span>
-                    </div>
-                    <p class="meta">@(string.IsNullOrEmpty(post.UserEmail) ? "Anonymous" : "Community Member") • @post.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</p>
-                </div>
-                @if (isAdmin)
-                {
-                    <select class="status-select" data-id="@post.Id">
-                        <option value="Open" selected="@(post.Status == "Open")">Open</option>
-                        <option value="Partially Fulfilled" selected="@(post.Status == "Partially Fulfilled")">Partially Fulfilled</option>
-                        <option value="Fulfilled" selected="@(post.Status == "Fulfilled")">Fulfilled</option>
-                    </select>
-                }
-                else
-                {
-                    <span class="badge @StatusBadgeClass(post.Status)">@post.Status</span>
-                }
-            </div>
-            <p class="description">@post.Description</p>
-            <p class="details">
-                <strong>Requesting For:</strong> @post.RequestingFor
-                @if (post.RequestingFor == "Family" && post.FamilyCount.HasValue) { <span> • @post.FamilyCount individuals</span> }
-                &nbsp;&nbsp;
-                <strong>Quantity Needed:</strong> @post.QuantityNeeded &nbsp;&nbsp;
-                <strong>ID:</strong> @post.PostId
-            </p>
-            <div class="actions">
-                <button class="primary-btn small offer-help" data-id="@post.Id">
-                    <i class="fa-regular fa-heart"></i> Offer Help
-                </button>
-                <button class="secondary-btn small view-responses" data-id="@post.Id">
-                    <i class="fa-regular fa-comment"></i> @post.ResponseCount Responses
-                </button>
-                @if (isAdmin)
-                {
-                    <button class="delete-btn small" data-id="@post.Id">
-                        <i class="fa-solid fa-trash"></i> Delete
-                    </button>
-                }
-            </div>
-        </div>
-    }
+<!-- Posts -->
+<div id="postsContainer" class="posts-grid">
     @if (!Model.Posts.Any())
     {
-        <p style="text-align:center; padding:40px;">No community posts yet. Be the first to post a request!</p>
+        <div class="empty-state">
+            <i class="fa-regular fa-comment" style="font-size:36px;color:#d1d5db;display:block;margin-bottom:12px;"></i>
+            <p>No community posts yet. Be the first to post a request!</p>
+            <button class="primary-btn" onclick="openCommunityModal()">
+                <i class="fa-solid fa-plus"></i> Post a Request
+            </button>
+        </div>
+    }
+    else
+    {
+        @foreach (var post in Model.Posts)
+        {
+            <div class="request-card @(post.IsUrgent ? "urgent-card" : "")"
+                 data-post-id="@post.Id"
+                 data-type="@post.AssistanceType"
+                 data-status="@post.Status"
+                 data-urgent="@post.IsUrgent.ToString().ToLower()">
+
+                <div class="request-header">
+                    <div class="avatar @(post.IsUrgent ? "urgent-avatar" : "")">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+                    <div class="request-info">
+                        <div class="request-title">
+                            @(post.IsUrgent ? "⚡ Urgent: " : "")@post.AssistanceType Assistance Needed
+                        </div>
+                        <div class="badges">
+                            @if (post.IsUrgent) { <span class="badge urgent">Urgent</span> }
+                            <span class="tag">@post.AssistanceType</span>
+                            <span class="badge @StatusBadgeClass(post.Status)">@post.Status</span>
+                        </div>
+                        <div class="meta">
+                            <i class="fa-regular fa-user" style="margin-right:3px;"></i>
+                            @(string.IsNullOrEmpty(post.UserEmail) ? "Anonymous" : "Community Member")
+                            &nbsp;·&nbsp;
+                            <i class="fa-regular fa-clock" style="margin-right:3px;"></i>
+                            @post.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")
+                            &nbsp;·&nbsp;
+                            <span style="font-family:monospace;font-size:10px;">@post.PostId</span>
+                        </div>
+                    </div>
+                    @if (isAdmin)
+                    {
+                        var pStatus = post.Status;
+                        <select class="status-select" data-id="@post.Id">
+                            <option value="Open"                selected="@(pStatus == "Open"                ? "selected" : null)">Open</option>
+                            <option value="Partially Fulfilled" selected="@(pStatus == "Partially Fulfilled" ? "selected" : null)">Partially Fulfilled</option>
+                            <option value="Fulfilled"           selected="@(pStatus == "Fulfilled"           ? "selected" : null)">Fulfilled</option>
+                        </select>
+                    }
+                </div>
+
+                <p class="description">@post.Description</p>
+
+                <div class="details">
+                    <span class="detail-pill">
+                        <i class="fa-solid fa-users" style="color:#9ca3af;"></i>
+                        <strong>For:</strong> @post.RequestingFor
+                        @if (post.RequestingFor == "Family" && post.FamilyCount.HasValue)
+                        { <span>(@post.FamilyCount people)</span> }
+                    </span>
+                    <span class="detail-pill">
+                        <i class="fa-solid fa-hashtag" style="color:#9ca3af;"></i>
+                        <strong>Qty needed:</strong> @post.QuantityNeeded
+                    </span>
+                    <span class="detail-pill">
+                        <i class="fa-regular fa-heart" style="color:#9ca3af;"></i>
+                        @post.ResponseCount responses
+                    </span>
+                </div>
+
+                <div class="post-actions">
+                    <button class="btn-help offer-help" data-id="@post.Id">
+                        <i class="fa-regular fa-heart"></i> Offer Help
+                    </button>
+                    <button class="btn-responses view-responses" data-id="@post.Id">
+                        <i class="fa-regular fa-comment"></i> @post.ResponseCount Responses
+                    </button>
+                    @if (isAdmin)
+                    {
+                        <button class="btn-delete" data-id="@post.Id">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    }
+                </div>
+            </div>
+        }
     }
 </div>
 
-<!-- MODAL FORM -->
+<!-- ===== POST MODAL ===== -->
 <div id="communityModal" class="modal-overlay">
-    <div class="request-modal large-form-modal">
+    <div class="community-modal">
         <button class="modal-close" onclick="closeCommunityModal()">×</button>
-        <h3>Post Assistance Request</h3>
-        <p class="request-note">Share your need with the community (displayed anonymously)</p>
+        <div class="modal-title">Post Assistance Request</div>
+        <div class="modal-subtitle">Your request will be displayed anonymously on the community board.</div>
+
         <form id="communityForm">
-            <label>Requesting For</label>
-            <select id="communityRequestingFor" onchange="toggleCommunityFamily()">
-                <option>Individual</option>
-                <option>Family</option>
-            </select>
-            <div id="communityFamilyBox" style="display:none;">
-                <label>Number of Individuals</label>
-                <input type="number" id="familyCount" placeholder="Enter number of people" />
+            <div class="form-row">
+                <div>
+                    <label>Requesting For</label>
+                    <select id="communityRequestingFor" onchange="toggleCommunityFamily()">
+                        <option>Individual</option>
+                        <option>Family</option>
+                    </select>
+                </div>
+                <div id="communityFamilyBox" style="display:none;">
+                    <label>Number of Individuals</label>
+                    <input type="number" id="familyCount" placeholder="e.g. 4" min="1"/>
+                </div>
             </div>
-            <label>Type of Assistance</label>
-            <select id="assistanceType">
-                <option>Select type</option>
-                <option>Food Parcels</option>
-                <option>Clothing</option>
-                <option>Blankets</option>
-                <option>Money</option>
-                <option>Other</option>
-            </select>
-            <label>Quantity Needed</label>
-            <input type="number" id="quantityNeeded" placeholder="Enter quantity" />
-            <label>Description</label>
-            <textarea id="description" placeholder="Describe your situation and what help you need..."></textarea>
-            <label>Contact Information (Optional)</label>
-            <input type="text" id="contactInfo" placeholder="Phone or email (optional)" />
-            <p class="note-text">This information will only be visible to administrators</p>
-            <label class="urgent-check">
-                <input type="checkbox" id="isUrgent" /> <span>Mark as urgent - This will prioritize your request</span>
-            </label>
+
+            <div class="form-row">
+                <div>
+                    <label>Type of Assistance *</label>
+                    <select id="assistanceType" required>
+                        <option value="">Select type</option>
+                        <option>Food Parcels</option>
+                        <option>Clothing</option>
+                        <option>Blankets</option>
+                        <option>Money</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Quantity Needed</label>
+                    <input type="number" id="quantityNeeded" placeholder="e.g. 2" min="1"/>
+                </div>
+            </div>
+
+            <label>Description *</label>
+            <textarea id="description" placeholder="Describe your situation and what help you need…" required></textarea>
+
+            <label>Contact Information <span style="font-weight:400;text-transform:none;color:#9ca3af;">(optional)</span></label>
+            <input type="text" id="contactInfo" placeholder="Phone or email"/>
+            <p class="note-text"><i class="fa-solid fa-lock" style="margin-right:3px;"></i> Only visible to administrators</p>
+
+            <div class="urgent-row">
+                <input type="checkbox" id="isUrgent"/>
+                <span><i class="fa-solid fa-triangle-exclamation"></i> Mark as urgent — this will prioritise your request</span>
+            </div>
+
+            <div class="form-error" id="communityError"></div>
+
             <div class="modal-actions">
                 <button type="submit" class="submit-btn">Post to Community Board</button>
                 <button type="button" class="cancel-btn" onclick="closeCommunityModal()">Cancel</button>
@@ -162,101 +329,84 @@
 </div>
 
 <script>
-    function openCommunityModal() { document.getElementById("communityModal").style.display = "flex"; toggleCommunityFamily(); }
-    function closeCommunityModal() { document.getElementById("communityModal").style.display = "none"; document.getElementById("communityForm").reset(); }
-    function toggleCommunityFamily() {
-        var box = document.getElementById("communityFamilyBox");
-        box.style.display = document.getElementById("communityRequestingFor").value === "Family" ? "block" : "none";
-    }
+function openCommunityModal()  { document.getElementById("communityModal").style.display = "flex"; toggleCommunityFamily(); }
+function closeCommunityModal() { document.getElementById("communityModal").style.display = "none"; document.getElementById("communityForm").reset(); document.getElementById("communityError").style.display="none"; }
 
-    // Submit new post
-    document.getElementById("communityForm").addEventListener("submit", async function(e) {
-        e.preventDefault();
-        var data = {
-            requestingFor: document.getElementById("communityRequestingFor").value,
-            familyCount: parseInt(document.getElementById("familyCount").value) || 0,
-            assistanceType: document.getElementById("assistanceType").value,
-            quantityNeeded: parseInt(document.getElementById("quantityNeeded").value) || 0,
-            description: document.getElementById("description").value,
-            contactInfo: document.getElementById("contactInfo").value,
-            isUrgent: document.getElementById("isUrgent").checked
-        };
-        try {
-            var response = await fetch("/Community/Create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
-            var result = await response.json();
-            if (result.success) {
-                alert("Post created successfully!");
-                closeCommunityModal();
-                location.reload();
-            } else {
-                alert("Error: " + result.message);
-            }
-        } catch (err) { alert("Network error: " + err.message); }
+function toggleCommunityFamily() {
+    var box = document.getElementById("communityFamilyBox");
+    box.style.display = document.getElementById("communityRequestingFor").value === "Family" ? "block" : "none";
+}
+
+document.getElementById("communityForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    var errEl = document.getElementById("communityError");
+    errEl.style.display = "none";
+
+    var type = document.getElementById("assistanceType").value;
+    var desc = document.getElementById("description").value.trim();
+    if (!type) { errEl.textContent = "Please select a type of assistance."; errEl.style.display = "block"; return; }
+    if (!desc) { errEl.textContent = "Please enter a description.";         errEl.style.display = "block"; return; }
+
+    var data = {
+        requestingFor:  document.getElementById("communityRequestingFor").value,
+        familyCount:    parseInt(document.getElementById("familyCount").value) || 0,
+        assistanceType: type,
+        quantityNeeded: parseInt(document.getElementById("quantityNeeded").value) || 0,
+        description:    desc,
+        contactInfo:    document.getElementById("contactInfo").value,
+        isUrgent:       document.getElementById("isUrgent").checked
+    };
+
+    try {
+        var res = await fetch("/Community/Create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        var result = await res.json();
+        if (result.success) { closeCommunityModal(); location.reload(); }
+        else { errEl.textContent = result.message || "Submission failed."; errEl.style.display = "block"; }
+    } catch(err) { errEl.textContent = "Network error. Please try again."; errEl.style.display = "block"; }
+});
+
+document.querySelectorAll(".status-select").forEach(function(sel) {
+    sel.addEventListener("change", async function() {
+        await fetch("/Community/UpdateStatus?id=" + this.dataset.id + "&status=" + encodeURIComponent(this.value), { method: "POST" });
+        location.reload();
     });
+});
 
-    // Admin: status change
-    document.querySelectorAll(".status-select").forEach(select => {
-        select.addEventListener("change", async function() {
-            var id = this.dataset.id;
-            var status = this.value;
-            await fetch("/Community/UpdateStatus?id=" + id + "&status=" + status, { method: "POST" });
+document.querySelectorAll(".btn-delete").forEach(function(btn) {
+    btn.addEventListener("click", async function() {
+        if (confirm("Delete this post?")) {
+            await fetch("/Community/Delete?id=" + this.dataset.id, { method: "POST" });
             location.reload();
-        });
+        }
     });
+});
 
-    // Admin: delete
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-        btn.addEventListener("click", async function() {
-            if (confirm("Delete this post?")) {
-                var id = this.dataset.id;
-                await fetch("/Community/Delete?id=" + id, { method: "POST" });
-                location.reload();
-            }
-        });
+document.querySelectorAll(".offer-help").forEach(function(btn) {
+    btn.addEventListener("click", async function() {
+        var res = await fetch("/Community/OfferHelp?id=" + this.dataset.id, { method: "POST" });
+        if (res.ok) location.reload();
     });
+});
 
-    // Offer help (any authenticated user)
-    document.querySelectorAll(".offer-help").forEach(btn => {
-        btn.addEventListener("click", async function() {
-            var id = this.dataset.id;
-            var response = await fetch("/Community/OfferHelp?id=" + id, { method: "POST" });
-            if (response.ok) {
-                alert("Thank you for offering help! The response count has been updated.");
-                location.reload();
-            } else {
-                alert("Could not update.");
-            }
-        });
+function applyFilters() {
+    var type      = document.getElementById("typeFilter").value;
+    var status    = document.getElementById("statusFilter").value;
+    var urgentOnly = document.getElementById("urgentOnlyBtn").classList.contains("active");
+    document.querySelectorAll(".request-card").forEach(function(card) {
+        var ok = (type === "All Types"   || card.dataset.type   === type)
+              && (status === "All Status" || card.dataset.status === status)
+              && (!urgentOnly             || card.dataset.urgent === "true");
+        card.style.display = ok ? "block" : "none";
     });
-
-    // Basic filtering (client‑side)
-    function applyFilters() {
-        var type = document.getElementById("typeFilter").value;
-        var status = document.getElementById("statusFilter").value;
-        var urgentOnly = document.getElementById("urgentOnlyBtn").classList.contains("active");
-        document.querySelectorAll(".request-card").forEach(card => {
-            var matchType = type === "All Types" || card.dataset.type === type;
-            var matchStatus = status === "All Status" || card.dataset.status === status;
-            var matchUrgent = !urgentOnly || card.dataset.urgent === "true";
-            card.style.display = (matchType && matchStatus && matchUrgent) ? "block" : "none";
-        });
-    }
-    document.getElementById("typeFilter").addEventListener("change", applyFilters);
-    document.getElementById("statusFilter").addEventListener("change", applyFilters);
-    document.getElementById("urgentOnlyBtn").addEventListener("click", function() {
-        this.classList.toggle("active");
-        applyFilters();
-    });
+}
+document.getElementById("typeFilter").addEventListener("change", applyFilters);
+document.getElementById("statusFilter").addEventListener("change", applyFilters);
+document.getElementById("urgentOnlyBtn").addEventListener("click", function() {
+    this.classList.toggle("active");
+    applyFilters();
+});
 </script>
-
-<style>
-    .badge.urgent { background: #ef4444; color: white; }
-    .status-select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ccc; background: white; }
-    .delete-btn.small { background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin-left: 8px; }
-    .delete-btn.small:hover { background: #fecaca; }
-    .filter-card .urgent-btn.active { background: #ef4444; color: white; border-color: #ef4444; }
-</style>
