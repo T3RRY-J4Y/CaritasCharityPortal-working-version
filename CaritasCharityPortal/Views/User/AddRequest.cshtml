@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Request Assistance";
+}
+
+<div class="user-request-page">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Request Assistance</h1>
+            <p class="page-subtitle">
+                Submit your request and our team will review it.
+            </p>
+        </div>
+    </div>
+
+    <div class="request-card">
+
+        <form>
+
+            <label>Type of Assistance Needed</label>
+            <select>
+                <option>Select type</option>
+                <option>Food Parcels</option>
+                <option>Money</option>
+                <option>Clothing</option>
+                <option>Blankets</option>
+            </select>
+
+            <label>Quantity</label>
+            <input type="text" placeholder="Enter quantity" />
+
+            <label>Reason for Request</label>
+            <textarea placeholder="Explain why you need this assistance..."></textarea>
+
+            <label>Contact Information (Private)</label>
+            <input type="text" placeholder="Phone number or email" />
+
+            <small class="private-note">
+                This information will only be visible to administrators
+            </small>
+
+            <div style="display:flex; align-items:center; gap:10px; margin:14px 0;">
+                <input type="checkbox" style="width:auto; margin:0;" />
+                <span style="font-size:13px;">This is an urgent request</span>
+            </div>
+
+            <button type="submit" class="submit-btn full">
+                Submit Request
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

@@ -1,0 +1,198 @@
+﻿@model CaritasCharityPortal.Models.InventoryViewModel
+@{
+    ViewData["Title"] = "Inventory";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Inventory Management</h1>
+        <p class="page-subtitle">Track donated items, stock levels, and distributions.</p>
+    </div>
+    <div style="display:flex; gap:10px;">
+        <button class="primary-btn" onclick="openAddStockModal()">
+            <i class="fa-solid fa-plus"></i> Add Stock
+        </button>
+        <button class="secondary-btn" onclick="openRemoveStockModal()">
+            <i class="fa-solid fa-minus"></i> Remove Stock
+        </button>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="card"><div class="card-header"><h4>Total Items</h4><div class="icon blue"><i class="fa-solid fa-cube"></i></div></div><h2>@Model.TotalItems</h2></div>
+    <div class="card"><div class="card-header"><h4>Low Stock Items</h4><div class="icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div></div><h2>@Model.LowStockCount</h2></div>
+    <div class="card"><div class="card-header"><h4>Critical Stock</h4><div class="icon red"><i class="fa-solid fa-arrow-trend-down"></i></div></div><h2>@Model.CriticalStockCount</h2></div>
+    <div class="card"><div class="card-header"><h4>Warehouses</h4><div class="icon green"><i class="fa-solid fa-cube"></i></div></div><h2>@Model.WarehouseCount</h2></div>
+</div>
+
+<div class="inventory-alerts">
+    @foreach (var alert in Model.Alerts)
+    {
+        <div class="stock-alert @alert.Type">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+                <h3>@alert.Title</h3>
+                <p>@alert.Message</p>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <h3>Inventory Items</h3>
+        <p>Current donated items available in stock.</p>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Item Code</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Last Updated</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                string statusClass = item.Quantity <= 5 ? "red" : (item.Quantity <= 20 ? "yellow" : "green");
+                string statusText = item.Quantity <= 5 ? "Critical" : (item.Quantity <= 20 ? "Low Stock" : "Available");
+                <tr data-id="@item.Id">
+                    <td>@item.ItemCode</td>
+                    <td>@item.Category</td>
+                    <td>@item.Description</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.LastUpdated.ToString("dd MMM yyyy")</td>
+                    <td><span class="badge @statusClass">@statusText</span></td>
+                    <td>
+                        <button class="delete-btn" data-id="@item.Id" style="background:#fee2e2;color:#dc2626;border:none;padding:4px 10px;border-radius:6px;">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- ADD STOCK MODAL -->
+<div id="addStockModal" class="modal-overlay">
+    <div class="request-modal">
+        <button class="modal-close" onclick="closeAddStockModal()">×</button>
+        <h3>Add Stock</h3>
+        <p class="request-note">Add new inventory item</p>
+        <form id="addStockForm">
+            <label>Category</label>
+            <select id="addCategory" required>
+                <option value="">Select category</option>
+                <option>Food Parcels</option>
+                <option>Clothing</option>
+                <option>Blankets</option>
+            </select>
+            <label>Description</label>
+            <input type="text" id="addDescription" placeholder="Item description" required />
+            <label>Quantity</label>
+            <input type="number" id="addQuantity" placeholder="Enter quantity" required />
+            <label>Storage Location</label>
+            <select id="addLocation" required>
+                <option value="">Select location</option>
+                <option>Warehouse A</option>
+                <option>Warehouse B</option>
+                <option>Warehouse C</option>
+            </select>
+            <div class="modal-actions">
+                <button type="submit" class="submit-btn">Add Stock</button>
+                <button type="button" class="cancel-btn" onclick="closeAddStockModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- REMOVE STOCK MODAL -->
+<div id="removeStockModal" class="modal-overlay">
+    <div class="request-modal">
+        <button class="modal-close" onclick="closeRemoveStockModal()">×</button>
+        <h3>Remove Stock</h3>
+        <p class="request-note">Select an item and enter quantity to remove</p>
+        <form id="removeStockForm">
+            <label>Select Item</label>
+            <select id="removeItemId" required>
+                <option value="">Choose an item</option>
+                @foreach (var item in Model.Items)
+                {
+                    <option value="@item.Id">@item.ItemCode - @item.Description (@item.Quantity in stock)</option>
+                }
+            </select>
+            <label>Quantity to Remove</label>
+            <input type="number" id="removeQuantity" placeholder="Enter quantity" required />
+            <div class="modal-actions">
+                <button type="submit" class="submit-btn">Remove Stock</button>
+                <button type="button" class="cancel-btn" onclick="closeRemoveStockModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAddStockModal() { document.getElementById("addStockModal").style.display = "flex"; }
+    function closeAddStockModal() { document.getElementById("addStockModal").style.display = "none"; document.getElementById("addStockForm").reset(); }
+    function openRemoveStockModal() { document.getElementById("removeStockModal").style.display = "flex"; }
+    function closeRemoveStockModal() { document.getElementById("removeStockModal").style.display = "none"; document.getElementById("removeStockForm").reset(); }
+
+    // Add stock
+    document.getElementById("addStockForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        var data = {
+            category: document.getElementById("addCategory").value,
+            description: document.getElementById("addDescription").value,
+            quantity: parseInt(document.getElementById("addQuantity").value),
+            storageLocation: document.getElementById("addLocation").value
+        };
+        try {
+            var response = await fetch("/Inventory/AddStock", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            var result = await response.json();
+            if (result.success) {
+                alert("Stock added successfully!");
+                location.reload();
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch (err) { alert("Network error: " + err.message); }
+    });
+
+    // Remove stock
+    document.getElementById("removeStockForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        var id = document.getElementById("removeItemId").value;
+        var quantity = parseInt(document.getElementById("removeQuantity").value);
+        if (!id) { alert("Please select an item."); return; }
+        if (quantity <= 0) { alert("Quantity must be positive."); return; }
+        try {
+            var response = await fetch(`/Inventory/RemoveStock?id=${id}&quantity=${quantity}`, { method: "POST" });
+            var result = await response.json();
+            if (result.success) {
+                alert("Stock removed successfully!");
+                location.reload();
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch (err) { alert("Network error: " + err.message); }
+    });
+
+    // Delete item
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async function() {
+            if (confirm("Delete this inventory item permanently?")) {
+                var id = this.dataset.id;
+                var response = await fetch(`/Inventory/Delete?id=${id}`, { method: "POST" });
+                if (response.ok) location.reload();
+                else alert("Delete failed.");
+            }
+        });
+    });
+</script>

@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Title"] = "Apply as Volunteer";
+}
+
+<div class="user-request-page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Become a Volunteer</h1>
+            <p class="page-subtitle">Join Caritas and help make a difference in your community.</p>
+        </div>
+    </div>
+    <div class="request-card">
+        <form id="applyForm">
+            <div class="form-row">
+                <div>
+                    <label>Full Name *</label>
+                    <input type="text" id="fullName" placeholder="John Doe" required />
+                </div>
+                <div>
+                    <label>Email *</label>
+                    <input type="email" id="email" placeholder="john@email.com" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label>Phone Number *</label>
+                    <input type="tel" id="phone" placeholder="+27 12 345 6789" required />
+                </div>
+                <div>
+                    <label>Location *</label>
+                    <input type="text" id="location" placeholder="City, Province" required />
+                </div>
+            </div>
+            <label>Skills & Expertise *</label>
+            <input type="text" id="skills" placeholder="e.g., Event Planning, Medical Support, Teaching" required />
+
+            <label>Availability *</label>
+            <select id="availability" required>
+                <option value="">Select availability</option>
+                <option>Weekdays</option>
+                <option>Weekends</option>
+                <option>Evenings</option>
+                <option>Flexible</option>
+            </select>
+
+            <label>Why do you want to volunteer? *</label>
+            <textarea id="motivation" placeholder="Tell us about your motivation..." required></textarea>
+
+            <div class="modal-actions">
+                <button type="submit" class="submit-btn full">Submit Application</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById("applyForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        // Client-side validation
+        const requiredFields = this.querySelectorAll("[required]");
+        let isValid = true;
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.style.borderColor = "red";
+                isValid = false;
+            } else {
+                field.style.borderColor = "";
+            }
+        });
+        if (!isValid) {
+            alert("Please fill in all required fields.");
+            return;
+        }
+
+        const data = {
+            fullName: document.getElementById("fullName").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            location: document.getElementById("location").value,
+            skills: document.getElementById("skills").value,
+            availability: document.getElementById("availability").value,
+            motivation: document.getElementById("motivation").value
+        };
+
+        try {
+            const response = await fetch("/Volunteer/Create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert("Application submitted successfully! Thank you.");
+                document.getElementById("applyForm").reset();
+                // Reset border colors
+                document.querySelectorAll("#applyForm [required]").forEach(f => f.style.borderColor = "");
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch (error) {
+            alert("Network error: " + error.message);
+        }
+    });
+</script>

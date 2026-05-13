@@ -1,0 +1,262 @@
+﻿@model CaritasCharityPortal.Models.CommunityViewModel
+@{
+    ViewData["Title"] = "Community Board";
+    var isAdmin = ViewBag.IsAdmin == true;
+
+    string StatusBadgeClass(string status) => status switch
+    {
+        "Open" => "yellow",
+        "Partially Fulfilled" => "orange",
+        "Fulfilled" => "green",
+        _ => "gray"
+    };
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Community Board</h1>
+        <p class="page-subtitle">View and respond to community assistance requests</p>
+    </div>
+    <button class="primary-btn" onclick="openCommunityModal()">
+        <i class="fa-solid fa-plus"></i> Post Request
+    </button>
+</div>
+
+@if (isAdmin)
+{
+    <div class="stats">
+        <div class="card"><div class="card-header"><h4>Total Posts</h4><div class="icon blue"><i class="fa-regular fa-comment"></i></div></div><h2>@Model.TotalPosts</h2></div>
+        <div class="card"><div class="card-header"><h4>Total Responses</h4><div class="icon green"><i class="fa-regular fa-heart"></i></div></div><h2>@Model.TotalResponses</h2></div>
+        <div class="card"><div class="card-header"><h4>Active Requests</h4><div class="icon orange"><i class="fa-regular fa-clock"></i></div></div><h2>@Model.ActiveRequests</h2></div>
+        <div class="card"><div class="card-header"><h4>Urgent Posts</h4><div class="icon red"><i class="fa-solid fa-exclamation"></i></div></div><h2>@Model.UrgentPosts</h2></div>
+    </div>
+}
+
+<!-- FILTER BAR (static – can be extended) -->
+<div class="filter-card">
+    <div class="filter-group">
+        <label>All Types</label>
+        <select id="typeFilter">
+            <option>All Types</option>
+            <option>Food Parcels</option>
+            <option>Clothing</option>
+            <option>Blankets</option>
+            <option>Money</option>
+            <option>Other</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>All Status</label>
+        <select id="statusFilter">
+            <option>All Status</option>
+            <option>Open</option>
+            <option>Partially Fulfilled</option>
+            <option>Fulfilled</option>
+        </select>
+    </div>
+    <button class="urgent-btn" id="urgentOnlyBtn">
+        <i class="fa-solid fa-circle-exclamation"></i> Urgent Only
+    </button>
+</div>
+
+<div id="postsContainer">
+    @foreach (var post in Model.Posts)
+    {
+        <div class="request-card" data-post-id="@post.Id" data-type="@post.AssistanceType" data-status="@post.Status" data-urgent="@post.IsUrgent.ToString().ToLower()">
+            <div class="request-header">
+                <div class="avatar"><i class="fa-regular fa-user"></i></div>
+                <div class="request-info">
+                    <h3 class="request-title">
+                        @(post.IsUrgent ? "Urgent: " : "")@post.AssistanceType Assistance Needed
+                    </h3>
+                    <div class="badges">
+                        @if (post.IsUrgent) { <span class="badge urgent">Urgent</span> }
+                        <span class="tag">@post.AssistanceType</span>
+                    </div>
+                    <p class="meta">@(string.IsNullOrEmpty(post.UserEmail) ? "Anonymous" : "Community Member") • @post.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</p>
+                </div>
+                @if (isAdmin)
+                {
+                    <select class="status-select" data-id="@post.Id">
+                        <option value="Open" selected="@(post.Status == "Open")">Open</option>
+                        <option value="Partially Fulfilled" selected="@(post.Status == "Partially Fulfilled")">Partially Fulfilled</option>
+                        <option value="Fulfilled" selected="@(post.Status == "Fulfilled")">Fulfilled</option>
+                    </select>
+                }
+                else
+                {
+                    <span class="badge @StatusBadgeClass(post.Status)">@post.Status</span>
+                }
+            </div>
+            <p class="description">@post.Description</p>
+            <p class="details">
+                <strong>Requesting For:</strong> @post.RequestingFor
+                @if (post.RequestingFor == "Family" && post.FamilyCount.HasValue) { <span> • @post.FamilyCount individuals</span> }
+                &nbsp;&nbsp;
+                <strong>Quantity Needed:</strong> @post.QuantityNeeded &nbsp;&nbsp;
+                <strong>ID:</strong> @post.PostId
+            </p>
+            <div class="actions">
+                <button class="primary-btn small offer-help" data-id="@post.Id">
+                    <i class="fa-regular fa-heart"></i> Offer Help
+                </button>
+                <button class="secondary-btn small view-responses" data-id="@post.Id">
+                    <i class="fa-regular fa-comment"></i> @post.ResponseCount Responses
+                </button>
+                @if (isAdmin)
+                {
+                    <button class="delete-btn small" data-id="@post.Id">
+                        <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                }
+            </div>
+        </div>
+    }
+    @if (!Model.Posts.Any())
+    {
+        <p style="text-align:center; padding:40px;">No community posts yet. Be the first to post a request!</p>
+    }
+</div>
+
+<!-- MODAL FORM -->
+<div id="communityModal" class="modal-overlay">
+    <div class="request-modal large-form-modal">
+        <button class="modal-close" onclick="closeCommunityModal()">×</button>
+        <h3>Post Assistance Request</h3>
+        <p class="request-note">Share your need with the community (displayed anonymously)</p>
+        <form id="communityForm">
+            <label>Requesting For</label>
+            <select id="communityRequestingFor" onchange="toggleCommunityFamily()">
+                <option>Individual</option>
+                <option>Family</option>
+            </select>
+            <div id="communityFamilyBox" style="display:none;">
+                <label>Number of Individuals</label>
+                <input type="number" id="familyCount" placeholder="Enter number of people" />
+            </div>
+            <label>Type of Assistance</label>
+            <select id="assistanceType">
+                <option>Select type</option>
+                <option>Food Parcels</option>
+                <option>Clothing</option>
+                <option>Blankets</option>
+                <option>Money</option>
+                <option>Other</option>
+            </select>
+            <label>Quantity Needed</label>
+            <input type="number" id="quantityNeeded" placeholder="Enter quantity" />
+            <label>Description</label>
+            <textarea id="description" placeholder="Describe your situation and what help you need..."></textarea>
+            <label>Contact Information (Optional)</label>
+            <input type="text" id="contactInfo" placeholder="Phone or email (optional)" />
+            <p class="note-text">This information will only be visible to administrators</p>
+            <label class="urgent-check">
+                <input type="checkbox" id="isUrgent" /> <span>Mark as urgent - This will prioritize your request</span>
+            </label>
+            <div class="modal-actions">
+                <button type="submit" class="submit-btn">Post to Community Board</button>
+                <button type="button" class="cancel-btn" onclick="closeCommunityModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openCommunityModal() { document.getElementById("communityModal").style.display = "flex"; toggleCommunityFamily(); }
+    function closeCommunityModal() { document.getElementById("communityModal").style.display = "none"; document.getElementById("communityForm").reset(); }
+    function toggleCommunityFamily() {
+        var box = document.getElementById("communityFamilyBox");
+        box.style.display = document.getElementById("communityRequestingFor").value === "Family" ? "block" : "none";
+    }
+
+    // Submit new post
+    document.getElementById("communityForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        var data = {
+            requestingFor: document.getElementById("communityRequestingFor").value,
+            familyCount: parseInt(document.getElementById("familyCount").value) || 0,
+            assistanceType: document.getElementById("assistanceType").value,
+            quantityNeeded: parseInt(document.getElementById("quantityNeeded").value) || 0,
+            description: document.getElementById("description").value,
+            contactInfo: document.getElementById("contactInfo").value,
+            isUrgent: document.getElementById("isUrgent").checked
+        };
+        try {
+            var response = await fetch("/Community/Create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            var result = await response.json();
+            if (result.success) {
+                alert("Post created successfully!");
+                closeCommunityModal();
+                location.reload();
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch (err) { alert("Network error: " + err.message); }
+    });
+
+    // Admin: status change
+    document.querySelectorAll(".status-select").forEach(select => {
+        select.addEventListener("change", async function() {
+            var id = this.dataset.id;
+            var status = this.value;
+            await fetch("/Community/UpdateStatus?id=" + id + "&status=" + status, { method: "POST" });
+            location.reload();
+        });
+    });
+
+    // Admin: delete
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async function() {
+            if (confirm("Delete this post?")) {
+                var id = this.dataset.id;
+                await fetch("/Community/Delete?id=" + id, { method: "POST" });
+                location.reload();
+            }
+        });
+    });
+
+    // Offer help (any authenticated user)
+    document.querySelectorAll(".offer-help").forEach(btn => {
+        btn.addEventListener("click", async function() {
+            var id = this.dataset.id;
+            var response = await fetch("/Community/OfferHelp?id=" + id, { method: "POST" });
+            if (response.ok) {
+                alert("Thank you for offering help! The response count has been updated.");
+                location.reload();
+            } else {
+                alert("Could not update.");
+            }
+        });
+    });
+
+    // Basic filtering (client‑side)
+    function applyFilters() {
+        var type = document.getElementById("typeFilter").value;
+        var status = document.getElementById("statusFilter").value;
+        var urgentOnly = document.getElementById("urgentOnlyBtn").classList.contains("active");
+        document.querySelectorAll(".request-card").forEach(card => {
+            var matchType = type === "All Types" || card.dataset.type === type;
+            var matchStatus = status === "All Status" || card.dataset.status === status;
+            var matchUrgent = !urgentOnly || card.dataset.urgent === "true";
+            card.style.display = (matchType && matchStatus && matchUrgent) ? "block" : "none";
+        });
+    }
+    document.getElementById("typeFilter").addEventListener("change", applyFilters);
+    document.getElementById("statusFilter").addEventListener("change", applyFilters);
+    document.getElementById("urgentOnlyBtn").addEventListener("click", function() {
+        this.classList.toggle("active");
+        applyFilters();
+    });
+</script>
+
+<style>
+    .badge.urgent { background: #ef4444; color: white; }
+    .status-select { padding: 4px 8px; border-radius: 6px; border: 1px solid #ccc; background: white; }
+    .delete-btn.small { background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin-left: 8px; }
+    .delete-btn.small:hover { background: #fecaca; }
+    .filter-card .urgent-btn.active { background: #ef4444; color: white; border-color: #ef4444; }
+</style>

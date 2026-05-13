@@ -1,0 +1,166 @@
+﻿@model List<CaritasCharityPortal.Models.Donation>
+@{
+    ViewData["Title"] = "Donations";
+    var isAdmin = ViewBag.IsAdmin == true;
+    var totalDonations = Model.Count;
+    var totalMonetary = Model.Where(d => d.DonationType == "Money" && d.Amount.HasValue).Sum(d => d.Amount ?? 0);
+    var totalFoodParcels = Model.Where(d => d.DonationType == "Food Parcels" && d.Quantity.HasValue).Sum(d => d.Quantity ?? 0);
+    var pendingCount = Model.Count(d => d.Status == "Pending");
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Donations</h1>
+        <p class="page-subtitle">Track and manage all donations received.</p>
+    </div>
+    <button class="primary-btn" onclick="openDonationModal()">
+        <i class="fa-solid fa-plus"></i>
+        New Donation
+    </button>
+</div>
+
+@if (isAdmin)
+{
+    <div class="stats">
+        <div class="card">
+            <div class="card-header"><h4>Total Donations</h4><div class="icon blue"><i class="fa-solid fa-heart"></i></div></div>
+            <h2>@totalDonations</h2>
+        </div>
+        <div class="card">
+            <div class="card-header"><h4>Monetary Donations</h4><div class="icon green"><i class="fa-solid fa-money-bill-wave"></i></div></div>
+            <h2>R@(totalMonetary.ToString("N2"))</h2>
+        </div>
+        <div class="card">
+            <div class="card-header"><h4>Food Parcels</h4><div class="icon orange"><i class="fa-solid fa-box"></i></div></div>
+            <h2>@totalFoodParcels</h2>
+        </div>
+        <div class="card">
+            <div class="card-header"><h4>Pending Review</h4><div class="icon purple"><i class="fa-solid fa-clock"></i></div></div>
+            <h2>@pendingCount</h2>
+        </div>
+    </div>
+}
+
+<div class="table-card">
+    <div class="table-header">
+        <h3>Donation Records</h3>
+        <p>Recent donations submitted by donors.</p>
+    </div>
+    @if (Model.Any())
+    {
+        <table class="data-table">
+            <thead><tr><th>Reference</th><th>Donor</th><th>Type</th><th>Quantity / Amount</th><th>Date</th><th>Status</th>@if(isAdmin){
+                <th>Actions</th>
+            }
+        </tr></thead>
+        <tbody>
+            @foreach (var donation in Model.OrderByDescending(d => d.DonationDate))
+            {
+                <tr data-id="@donation.Id">
+                    <td>@donation.Reference</td>
+                    <td>@donation.DonorName</td>
+                    <td>@donation.DonationType</td>
+                    <td>@donation.DisplayQuantityOrAmount</td>
+                    <td>@donation.DonationDate.ToString("dd MMM yyyy")</td>
+                    <td><span class="badge @(donation.Status == "Received" ? "blue" : donation.Status == "Stored" ? "green" : donation.Status == "Sorted" ? "yellow" : "orange")">@donation.Status</span></td>
+                    @if (isAdmin)
+                    {
+                        <td>
+                            <select class="status-select" data-id="@donation.Id">
+                                <option value="Pending" selected="@(donation.Status == "Pending")">Pending</option>
+                                <option value="Received" selected="@(donation.Status == "Received")">Received</option>
+                                <option value="Stored" selected="@(donation.Status == "Stored")">Stored</option>
+                                <option value="Sorted" selected="@(donation.Status == "Sorted")">Sorted</option>
+                            </select>
+                            <button class="delete-btn" data-id="@donation.Id">Delete</button>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+    else
+{
+    <div class="empty-state">
+        <p>No donations yet.</p>
+        <button class="primary-btn" onclick="openDonationModal()"><i class="fa-solid fa-plus"></i> Add Your First Donation</button>
+    </div>
+}
+</div>
+
+<!-- DONATION MODAL (unchanged) -->
+<div id="donationModal" class="modal-overlay">
+    <div class="donation-modal">
+        <button class="modal-close" onclick="closeDonationModal()">×</button>
+        <div class="donation-types">
+            <label class="donation-type"><input type="radio" name="donationType" value="Food Parcels" checked onchange="toggleEftDetails()" /><i class="fa-solid fa-box"></i><span>Food Parcels</span></label>
+            <label class="donation-type"><input type="radio" name="donationType" value="Money" onchange="toggleEftDetails()" /><i class="fa-solid fa-rand-sign"></i><span>Money</span></label>
+            <label class="donation-type"><input type="radio" name="donationType" value="Clothing" onchange="toggleEftDetails()" /><i class="fa-solid fa-shirt"></i><span>Clothing</span></label>
+            <label class="donation-type"><input type="radio" name="donationType" value="Blankets" onchange="toggleEftDetails()" /><i class="fa-solid fa-bed"></i><span>Blankets</span></label>
+        </div>
+        <div id="eftDetails" class="eft-details">
+            <h4>EFT Banking Details</h4>
+            <p>Please make payment using the banking details below. Use your name as the reference.</p>
+            <div class="bank-row"><span>Bank Name</span><strong>Confirm with organisation</strong></div>
+            <div class="bank-row"><span>Account Name</span><strong>Caritas St Thomas More</strong></div>
+            <div class="bank-row"><span>Account Number</span><strong>0000000000</strong></div>
+            <div class="bank-row"><span>Branch Code</span><strong>000000</strong></div>
+            <div class="bank-row"><span>Reference</span><strong>Your Name + Donation</strong></div>
+        </div>
+        <form>
+            <label>Donor Name</label>
+            <input type="text" value="Tiro" />
+            <div class="form-row">
+                <div><label>Quantity / Amount</label><input type="text" value="02" placeholder="Example: 02 or R500" /></div>
+                <div><label>Donation Date</label><input type="date" value="2026-04-11" /></div>
+            </div>
+            <label>Description</label>
+            <textarea>Donation of drink (Oros) drink for needy people on 11 April 2026</textarea>
+            <div class="modal-actions">
+                <button type="submit" class="submit-btn">Submit Donation</button>
+                <button type="button" class="cancel-btn" onclick="closeDonationModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Helper functions
+    function openDonationModal() { document.getElementById("donationModal").style.display = "flex"; toggleEftDetails(); }
+    function closeDonationModal() { document.getElementById("donationModal").style.display = "none"; }
+    function toggleEftDetails() { const eft = document.getElementById("eftDetails"); eft.style.display = document.querySelector('input[name="donationType"]:checked').value === "Money" ? "block" : "none"; }
+
+    // Pass isAdmin from server to JS
+    var isAdmin = @(isAdmin ? "true" : "false");
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector("#donationModal form");
+        if (form) {
+            form.addEventListener("submit", async function(e) {
+                e.preventDefault();
+                const donorName = form.querySelector("input[type='text']")?.value || "";
+                const donationType = document.querySelector('input[name="donationType"]:checked')?.value || "";
+                const quantityAmount = form.querySelector(".form-row input[type='text']")?.value || "";
+                const donationDate = form.querySelector("input[type='date']")?.value || "";
+                const description = form.querySelector("textarea")?.value || "";
+                const data = { donorName, donationType, quantityOrAmount: quantityAmount, donationDate, description };
+                try {
+                    const res = await fetch("/Donations/Create", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(data) });
+                    const result = await res.json();
+                    if(result.success) { alert("Donation saved!"); closeDonationModal(); location.reload(); }
+                    else alert("Error: "+result.message);
+                } catch(e) { alert("Network error"); }
+            });
+        }
+        if (isAdmin) {
+            document.querySelectorAll(".status-select").forEach(sel => sel.addEventListener("change", async function() {
+                await fetch(`/Donations/UpdateStatus?id=${this.dataset.id}&status=${this.value}`, { method:"POST" });
+                location.reload();
+            }));
+            document.querySelectorAll(".delete-btn").forEach(btn => btn.addEventListener("click", async function() {
+                if(confirm("Delete?")) { await fetch(`/Donations/Delete?id=${this.dataset.id}`, { method:"POST" }); location.reload(); }
+            }));
+        }
+    });
+</script>

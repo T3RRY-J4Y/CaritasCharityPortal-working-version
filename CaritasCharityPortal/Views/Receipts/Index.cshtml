@@ -1,0 +1,109 @@
+﻿@model List<CaritasCharityPortal.Models.Receipt>
+@{
+    ViewData["Title"] = "Receipts";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Receipts</h1>
+        <p class="page-subtitle">Upload receipt images (stored on server).</p>
+    </div>
+    <button class="primary-btn" onclick="openReceiptModal()">
+        <i class="fa-solid fa-receipt"></i> Add Receipt
+    </button>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <h3>Receipt Records</h3>
+        <p>All uploaded receipts (images stored locally).</p>
+    </div>
+    <table class="data-table">
+        <thead><tr><th>Receipt ID</th><th>Name</th><th>Category</th><th>Image</th><th>Purchase Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var receipt in Model)
+            {
+                <tr>
+                    <td>@receipt.ReceiptId</td>
+                    <td>@receipt.Name</td>
+                    <td>@receipt.Category</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(receipt.FileLink))
+                        {
+                            <img src="@receipt.FileLink" alt="Receipt" style="max-width: 80px; max-height: 80px; border-radius: 4px;" />
+                        }
+                        else
+                        {
+                            <span>No image</span>
+                        }
+                    </td>
+                    <td>@receipt.PurchaseDate.ToString("yyyy-MM-dd")</td>
+                    <td><span class="badge green">@receipt.Status</span></td>
+                    <td><button class="delete-btn" data-id="@receipt.Id" data-link="@receipt.FileLink">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- MODAL (file upload) -->
+<div id="receiptModal" class="modal-overlay">
+    <div class="request-modal">
+        <button class="modal-close" onclick="closeReceiptModal()">×</button>
+        <h3>Add Receipt</h3>
+        <p class="request-note">Upload a receipt image (JPG, PNG, GIF).</p>
+        <form id="receiptForm" enctype="multipart/form-data">
+            <label>Receipt Name *</label>
+            <input type="text" id="receiptName" required />
+            <label>Category *</label>
+            <select id="category" required>
+                <option value="">Select category</option>
+                <option>Food Parcels</option>
+                <option>Clothing</option>
+                <option>Blankets</option>
+                <option>Transport</option>
+                <option>Medical Support</option>
+                <option>Other</option>
+            </select>
+            <label>Purchase Date *</label>
+            <input type="date" id="purchaseDate" required />
+            <label>Receipt Image *</label>
+            <input type="file" id="imageFile" accept="image/jpeg,image/png,image/gif" required />
+            <div class="modal-actions">
+                <button type="submit" class="submit-btn">Submit Receipt</button>
+                <button type="button" class="cancel-btn" onclick="closeReceiptModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openReceiptModal() { document.getElementById("receiptModal").style.display = "flex"; }
+    function closeReceiptModal() { document.getElementById("receiptModal").style.display = "none"; document.getElementById("receiptForm").reset(); }
+
+    document.getElementById("receiptForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const fd = new FormData();
+        fd.append("Name", document.getElementById("receiptName").value);
+        fd.append("Category", document.getElementById("category").value);
+        fd.append("PurchaseDate", document.getElementById("purchaseDate").value);
+        const fileInput = document.getElementById("imageFile");
+        if (fileInput.files.length === 0) { alert("Select an image."); return; }
+        fd.append("image", fileInput.files[0]);
+        const res = await fetch("/Receipts/Create", { method:"POST", body:fd });
+        const result = await res.json();
+        if (result.success) { alert("Uploaded!"); location.reload(); }
+        else alert("Error: "+result.message);
+    });
+
+    document.querySelectorAll(".delete-btn").forEach(btn => btn.addEventListener("click", async function() {
+        if(confirm("Delete?")) {
+            const id = this.dataset.id;
+            const link = this.dataset.link;
+            const res = await fetch(`/Receipts/Delete?id=${id}&fileLink=${encodeURIComponent(link)}`, { method:"POST" });
+            const result = await res.json();
+            if (result.success) location.reload();
+            else alert("Delete failed.");
+        }
+    }));
+</script>

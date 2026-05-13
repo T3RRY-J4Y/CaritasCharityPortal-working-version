@@ -1,0 +1,235 @@
+﻿@model CaritasCharityPortal.Models.AssistancePageViewModel
+@{
+    ViewData["Title"] = "Assistance Requests";
+    var isAdmin = ViewBag.IsAdmin == true;
+
+    string BadgeClass(AssistanceRequest r)
+    {
+        if (r.IsUrgent && r.Status == "Pending") return "red";
+        return r.Status switch
+        {
+            "Approved" => "green",
+            "Rejected" => "red",
+            _ => "yellow"
+        };
+    }
+
+    string BadgeLabel(AssistanceRequest r)
+    {
+        if (r.IsUrgent && r.Status == "Pending") return "Urgent";
+        return r.Status;
+    }
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Assistance Requests</h1>
+        <p class="page-subtitle">Review and manage all assistance requests.</p>
+    </div>
+    <button class="primary-btn" onclick="openRequestModal()">
+        <i class="fa-solid fa-plus"></i>
+        New Request
+    </button>
+</div>
+
+@if (isAdmin)
+{
+    <div class="stats">
+        <div class="card">
+            <div class="card-header"><h4>Rejected</h4><div class="icon blue"><i class="fa-solid fa-hand-holding-heart"></i></div></div>
+            <h2>@Model.Rejected</h2>
+        </div>
+        <div class="card">
+            <div class="card-header"><h4>Pending</h4><div class="icon yellow"><i class="fa-solid fa-clock"></i></div></div>
+            <h2>@Model.Pending</h2>
+        </div>
+        <div class="card">
+            <div class="card-header"><h4>Approved</h4><div class="icon green"><i class="fa-solid fa-check"></i></div></div>
+            <h2>@Model.Approved</h2>
+        </div>
+        <div class="card">
+            <div class="card-header"><h4>Urgent</h4><div class="icon red"><i class="fa-solid fa-triangle-exclamation"></i></div></div>
+            <h2>@Model.Urgent</h2>
+        </div>
+    </div>
+}
+
+<div class="table-card">
+    <div class="table-header">
+        <h3>Requests</h3>
+        <p>All submitted assistance requests.</p>
+    </div>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Requesting For</th>
+                    <th>Members</th>
+                    <th>Reason</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    @if (isAdmin)
+                    {
+                        <th>Action</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Requests.Any())
+                {
+                    <tr>
+                        <td colspan="@(isAdmin ? 7 : 6)" style="text-align:center;">No requests yet.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var r in Model.Requests)
+                    {
+                        <tr>
+                            <td>@r.ReferenceNumber</td>
+                            <td>@r.RequestingFor</td>
+                            <td>@(r.RequestingFor == "Family" ? (r.FamilyCount?.ToString() ?? "1") : "1")</td>
+                            <td>@(r.ReasonForDonation?.Length > 50 ? r.ReasonForDonation.Substring(0, 50) + "…" : r.ReasonForDonation)</td>
+                            <td>@r.SubmittedAt.ToString("dd MMM yyyy")</td>
+                            <td><span class="badge @BadgeClass(r)">@BadgeLabel(r)</span></td>
+                            @if (isAdmin)
+                            {
+                                <td>
+                                    @if (r.Status == "Pending")
+                                    {
+                                        <div style="display:flex; gap:8px;">
+                                            <button class="approve-btn" onclick="updateStatus('@r.Id', 'Approved')">Approve</button>
+                                            <button class="reject-btn" onclick="updateStatus('@r.Id', 'Rejected')">Reject</button>
+                                        </div>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL (same as before) -->
+<div id="requestModal" class="modal-overlay">
+    <div class="request-modal large-form-modal">
+        <button class="modal-close" onclick="closeRequestModal()">×</button>
+        <h3>Food Parcel Assistance Request Form</h3>
+        <p class="request-note">Please complete the assistance request details below.</p>
+        <form id="assistanceForm">
+            <label>Requesting For</label>
+            <select id="requestingFor" onchange="toggleFamilyCount()">
+                <option>Individual</option>
+                <option>Family</option>
+            </select>
+            <div id="familyCountBox" style="display:none;">
+                <label>Number of Individuals in Family</label>
+                <input type="number" id="familyCount" placeholder="Enter number of individuals" />
+            </div>
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Enter full name" required />
+            <label>Contact Number</label>
+            <input type="text" id="contactNumber" placeholder="Enter contact number" required />
+            <label>Physical Address</label>
+            <input type="text" id="physicalAddress" placeholder="Enter physical address" required />
+            <label>Church Attended</label>
+            <input type="text" id="churchAttended" placeholder="Enter church attended" />
+            <label>Reason for Needing Grocery Donation</label>
+            <textarea id="reasonForDonation" placeholder="Explain why grocery assistance is needed" required></textarea>
+            <div class="form-row">
+                <div><label>Total Family Members</label><input type="number" id="totalFamilyMembers" placeholder="Total" /></div>
+                <div><label>Children Below 18 Years</label><input type="number" id="childrenUnder18" placeholder="Number of children" /></div>
+            </div>
+            <label>Adults</label>
+            <input type="number" id="adults" placeholder="Number of adults" />
+            <label>Family Members Currently Enrolled in School</label>
+            <input type="text" id="membersInSchool" placeholder="Enter details" />
+            <label>Family Members Currently Employed</label>
+            <input type="text" id="membersEmployed" placeholder="Enter details" />
+            <label>Employment Status</label>
+            <select id="employmentStatus">
+                <option>Select status</option>
+                <option>Employed</option>
+                <option>Part-time</option>
+                <option>Unemployed</option>
+                <option>Other</option>
+            </select>
+            <label>Government Grants or Assistance Received</label>
+            <input type="text" id="governmentGrants" placeholder="Enter grants or assistance received, if any" />
+            <label>Period Assistance Required</label>
+            <input type="text" id="periodAssistanceRequired" placeholder="Example: 1 month, 3 months" />
+            <label>Additional Information</label>
+            <textarea id="additionalInformation" placeholder="Optional additional information"></textarea>
+            <div style="display:flex; align-items:center; gap:10px; margin:14px 0;">
+                <input type="checkbox" id="isUrgent" style="width:auto; margin:0;" />
+                <span style="font-size:13px;">This is an urgent request</span>
+            </div>
+            <div class="declaration-box">
+                <input type="checkbox" id="declarationAccepted" required /> I hereby declare that the information provided is true and accurate.
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="submit-btn">Submit Request</button>
+                <button type="button" class="cancel-btn" onclick="closeRequestModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openRequestModal() { document.getElementById("requestModal").style.display = "flex"; toggleFamilyCount(); }
+    function closeRequestModal() { document.getElementById("requestModal").style.display = "none"; document.getElementById("assistanceForm").reset(); }
+    function toggleFamilyCount() {
+        var familyBox = document.getElementById("familyCountBox");
+        familyBox.style.display = document.getElementById("requestingFor").value === "Family" ? "block" : "none";
+    }
+
+    document.getElementById("assistanceForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        var data = {
+            requestingFor: document.getElementById("requestingFor").value,
+            familyCount: parseInt(document.getElementById("familyCount").value) || 0,
+            name: document.getElementById("name").value,
+            contactNumber: document.getElementById("contactNumber").value,
+            physicalAddress: document.getElementById("physicalAddress").value,
+            churchAttended: document.getElementById("churchAttended").value,
+            reasonForDonation: document.getElementById("reasonForDonation").value,
+            totalFamilyMembers: parseInt(document.getElementById("totalFamilyMembers").value) || 0,
+            childrenUnder18: parseInt(document.getElementById("childrenUnder18").value) || 0,
+            adults: parseInt(document.getElementById("adults").value) || 0,
+            membersInSchool: document.getElementById("membersInSchool").value,
+            membersEmployed: document.getElementById("membersEmployed").value,
+            employmentStatus: document.getElementById("employmentStatus").value,
+            governmentGrants: document.getElementById("governmentGrants").value,
+            periodAssistanceRequired: document.getElementById("periodAssistanceRequired").value,
+            additionalInformation: document.getElementById("additionalInformation").value,
+            isUrgent: document.getElementById("isUrgent").checked,
+            declarationAccepted: document.getElementById("declarationAccepted").checked
+        };
+        try {
+            var response = await fetch("/Assistance/Create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            var result = await response.json();
+            if (result.success) {
+                alert("Request submitted successfully!");
+                closeRequestModal();
+                location.reload();
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch (error) {
+            alert("Network error: " + error.message);
+        }
+    });
+
+    async function updateStatus(id, status) {
+        var response = await fetch("/Assistance/UpdateStatus?id=" + id + "&status=" + status, { method: "POST" });
+        if (response.ok) location.reload();
+        else alert("Status update failed.");
+    }
+</script>

@@ -1,0 +1,255 @@
+﻿@model CaritasCharityPortal.Models.ReportViewModel
+@{
+    ViewData["Title"] = "Reports";
+    var reportTypes = new[] { "Monthly Impact", "Donation Summary", "Top Donors" };
+    var dateRanges = new[] { "Today", "This Week", "This Month", "This Quarter", "This Year" };
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Reports</h1>
+        <p class="page-subtitle">Generate and export comprehensive system reports</p>
+    </div>
+    <div class="header-actions">
+        <button class="secondary-btn" id="exportExcelBtn"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+        <button class="secondary-btn" id="exportPdfBtn"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+    </div>
+</div>
+
+<!-- FILTER BAR -->
+<form method="get" id="filterForm">
+    <div class="filter-card">
+        <div class="filter-group">
+            <label>Report Type</label>
+            <select name="reportType" id="reportType">
+                @foreach (var t in reportTypes)
+                {
+                    <option value="@t" selected="@(ViewBag.SelectedReportType == t)">@t</option>
+                }
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Date Range</label>
+            <select name="dateRange" id="dateRange">
+                @foreach (var dr in dateRanges)
+                {
+                    <option value="@dr" selected="@(ViewBag.SelectedDateRange == dr)">@dr</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="primary-btn"><i class="fa-solid fa-chart-column"></i> Generate Report</button>
+    </div>
+</form>
+
+<!-- STATS -->
+<div class="stats">
+    <div class="card"><div class="card-header"><h4>Total Value</h4><div class="icon blue"><i class="fa-solid fa-chart-line"></i></div></div><h2>R@(Model.TotalValue.ToString("N0"))</h2></div>
+    <div class="card"><div class="card-header"><h4>Total Donations</h4><div class="icon green"><i class="fa-solid fa-clock"></i></div></div><h2>@Model.TotalDonations</h2></div>
+    <div class="card"><div class="card-header"><h4>Unique Donors</h4><div class="icon purple"><i class="fa-solid fa-chart-bar"></i></div></div><h2>@Model.UniqueDonors</h2></div>
+    <div class="card"><div class="card-header"><h4>Items Distributed</h4><div class="icon orange"><i class="fa-solid fa-box"></i></div></div><h2>@Model.ItemsDistributed</h2></div>
+</div>
+
+@if (ViewBag.SelectedReportType == "Donation Summary")
+{
+    <div class="table-card">
+        <div class="table-header"><h3>Donation Summary – @ViewBag.SelectedDateRange</h3></div>
+        <table class="data-table" id="reportTable">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Total Donations</th>
+                    <th>Total Value</th>
+                    <th>Distributed</th>
+                    <th>In Stock</th>
+                    <th>Donors</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.CategorySummaries)
+                {
+                    <tr>
+                        <td>@c.Category</td>
+                        <td>@c.TotalDonations</td>
+                        <td>R@(c.TotalValue.ToString("N0"))</td>
+                        <td>@c.Distributed</td>
+                        <td>@c.InStock</td>
+                        <td>@c.Donors</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else if (ViewBag.SelectedReportType == "Top Donors")
+{
+    <div class="table-card">
+        <div class="table-header"><h3>Top Donors – @ViewBag.SelectedDateRange</h3></div>
+        <table class="data-table" id="reportTable">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Donor Name</th>
+                    <th>Total Donations</th>
+                    <th>Total Value</th>
+                    <th>Last Donation</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.TopDonors)
+                {
+                    <tr>
+                        <td>#@d.Rank</td>
+                        <td>@d.DonorName</td>
+                        <td>@d.DonationCount</td>
+                        <td>R@(d.TotalValue.ToString("N0"))</td>
+                        <td>@d.LastDonation.ToString("yyyy-MM-dd")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <!-- Monthly Impact Summary Table -->
+    <div class="table-card">
+        <div class="table-header"><h3>Monthly Impact – Last 6 Months</h3></div>
+        <table class="data-table" id="impactTable">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Donations</th>
+                    <th>Value</th>
+                    <th>Volunteers</th>
+                    <th>Assistance Requests</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model.MonthlyImpacts)
+                {
+                    <tr>
+                        <td>@m.Month</td>
+                        <td>@m.Donations</td>
+                        <td>R@(m.Value.ToString("N0"))</td>
+                        <td>@m.Volunteers</td>
+                        <td>@m.AssistanceRequests</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- CHART: Monthly Impact Overview -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>Monthly Impact Overview (Bar Chart)</h3>
+        </div>
+        <div style="height: 400px; padding: 16px;">
+            <canvas id="impactChart" width="800" height="400"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart.js initialization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Prepare data from Model.MonthlyImpacts (already rendered server‑side)
+        const months = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyImpacts.Select(m => m.Month)));
+        const donations = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyImpacts.Select(m => m.Donations)));
+        const volunteers = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyImpacts.Select(m => m.Volunteers)));
+        const assistanceRequests = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyImpacts.Select(m => m.AssistanceRequests)));
+
+        const ctx = document.getElementById('impactChart').getContext('2d');
+        new Chart(ctx, {
+        type: 'bar',
+        data: {
+        labels: months,
+        datasets: [
+        {
+        label: 'Donations',
+        data: donations,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+        },
+        {
+        label: 'Volunteers',
+        data: volunteers,
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+        },
+        {
+        label: 'Assistance Requests',
+        data: assistanceRequests,
+        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+        borderColor: 'rgba(255, 159, 64, 1)',
+        borderWidth: 1
+        }
+        ]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+        y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Count' }
+        },
+        x: {
+        title: { display: true, text: 'Month' }
+        }
+        },
+        plugins: {
+        legend: { position: 'top' },
+        tooltip: { mode: 'index', intersect: false }
+        }
+        }
+        });
+    </script>
+}
+
+<!-- EXPORT FUNCTIONS -->
+<script>
+    // Export to Excel (CSV)
+    document.getElementById("exportExcelBtn").addEventListener("click", async function() {
+    var reportType = document.getElementById("reportType").value;
+    var dateRange = document.getElementById("dateRange").value;
+    var response = await fetch(`/Reports/Export?reportType=${encodeURIComponent(reportType)}&dateRange=${encodeURIComponent(dateRange)}&format=csv`, { method: "POST" });
+    var blob = await response.blob();
+    var url = window.URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = `${reportType}_${dateRange}_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    });
+
+    // Export to PDF (using browser print)
+    document.getElementById("exportPdfBtn").addEventListener("click", function() {
+    window.print();
+    });
+</script>
+
+<!-- Print styles for better PDF output -->
+<style media="print">
+    .page-header .header-actions, .filter-card, .stats, .chart-placeholder, .sidebar, .page-header .primary-btn, .secondary-btn, button {
+    display: none !important;
+    }
+
+    .main-content {
+    margin: 0;
+    padding: 0;
+    }
+
+    .table-card, .stats, .card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    }
+
+    canvas {
+    max-width: 100%;
+    height: auto;
+    }
+</style>

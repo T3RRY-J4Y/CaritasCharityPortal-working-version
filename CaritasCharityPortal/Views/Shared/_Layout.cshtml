@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CaritasCharityPortal</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CaritasCharityPortal.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+
+            <div class="sidebar-brand">
+                <img src="~/images/logo.png" class="sidebar-logo" />
+                <div>
+                    <h2>Caritas</h2>
+                    <span>NGO Management</span>
+                </div>
+            </div>
+
+            <!-- DYNAMIC USER INFO + LOGOUT BUTTON -->
+            <div class="logged-box">
+                <small>Logged in as</small>
+                <strong>
+                    @{
+                        // Try to get FullName claim, fallback to Name claim, then email, then "User"
+                        var fullName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
+                        if (string.IsNullOrEmpty(fullName))
+                        {
+                            fullName = User.Identity?.Name ?? "User";
+                        }
+                    }
+                    @fullName
+                </strong>
+                <div style="margin-top: 8px;">
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                        <button type="submit" class="logout-btn" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:0; font-size:12px;">
+                            <i class="fa-solid fa-sign-out-alt"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a class="active" asp-controller="Dashboard" asp-action="Index">
+                    <i class="fa-solid fa-table-cells-large"></i> Dashboard
+                </a>
+
+                <a asp-controller="Donations" asp-action="Index">
+                    <i class="fa-regular fa-heart"></i> Donations
+                </a>
+
+                <a asp-controller="Assistance" asp-action="Index">
+                    <i class="fa-solid fa-hand-holding-heart"></i> Assistance Requests
+                </a>
+
+                <a asp-controller="Community" asp-action="Index">
+                    <i class="fa-regular fa-message"></i> Community Board
+                </a>
+
+                <a asp-controller="Inventory" asp-action="Index">
+                    <i class="fa-solid fa-cube"></i> Inventory
+                </a>
+
+                <a asp-controller="Volunteer" asp-action="Index">
+                    <i class="fa-solid fa-users"></i> Volunteer
+                </a>
+
+                <a asp-controller="Reports" asp-action="Index">
+                    <i class="fa-solid fa-chart-column"></i> Reports
+                </a>
+
+                <a asp-controller="Receipts" asp-action="Index">
+                    <i class="fa-solid fa-receipt"></i>
+                    Receipts
+                </a>
+            </nav>
+
+            <div class="sidebar-note">
+                Do not sell or share my personal info
+            </div>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            @RenderBody()
+        </div>
+
+    </div>
+
+</body>
+</html>

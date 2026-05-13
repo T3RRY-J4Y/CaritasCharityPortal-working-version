@@ -1,0 +1,158 @@
+﻿@{
+    ViewData["Title"] = "Make a Donation";
+}
+
+<div class="donor-donate-page">
+
+    <div class="donor-hero">
+        <div>
+            <h1 class="page-title">Make a Donation</h1>
+            <p class="page-subtitle">
+                Support Caritas by submitting your donation details below.
+            </p>
+        </div>
+
+        <button class="primary-btn" onclick="openDonationModal()">
+            <i class="fa-solid fa-plus"></i>
+            Add Donation
+        </button>
+    </div>
+
+    <div class="donor-center">
+        <div class="thank-you-card">
+            <div class="thank-icon">
+                <img src="~/images/logo.png" alt="Caritas Logo" />
+            </div>
+
+            <h2>Thank you for supporting Caritas</h2>
+            <p>
+                Your donation helps provide food parcels, clothing, blankets, and support
+                to people in need within the community.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<!-- DONATION MODAL (same as admin donations page) -->
+<div id="donationModal" class="modal-overlay">
+    <div class="donation-modal">
+        <button class="modal-close" onclick="closeDonationModal()">×</button>
+
+        <div class="donation-types">
+            <label class="donation-type">
+                <input type="radio" name="donationType" value="Food Parcels" checked onchange="toggleEftDetails()" />
+                <i class="fa-solid fa-box"></i>
+                <span>Food Parcels</span>
+            </label>
+            <label class="donation-type">
+                <input type="radio" name="donationType" value="Money" onchange="toggleEftDetails()" />
+                <i class="fa-solid fa-rand-sign"></i>
+                <span>Money</span>
+            </label>
+            <label class="donation-type">
+                <input type="radio" name="donationType" value="Clothing" onchange="toggleEftDetails()" />
+                <i class="fa-solid fa-shirt"></i>
+                <span>Clothing</span>
+            </label>
+            <label class="donation-type">
+                <input type="radio" name="donationType" value="Blankets" onchange="toggleEftDetails()" />
+                <i class="fa-solid fa-bed"></i>
+                <span>Blankets</span>
+            </label>
+        </div>
+
+        <div id="eftDetails" class="eft-details">
+            <h4>EFT Banking Details</h4>
+            <p>Please make payment using the banking details below. Use your name as the reference.</p>
+            <div class="bank-row"><span>Bank Name</span><strong>Confirm with organisation</strong></div>
+            <div class="bank-row"><span>Account Name</span><strong>Caritas St Thomas More</strong></div>
+            <div class="bank-row"><span>Account Number</span><strong>0000000000</strong></div>
+            <div class="bank-row"><span>Branch Code</span><strong>000000</strong></div>
+            <div class="bank-row"><span>Reference</span><strong>Your Name + Donation</strong></div>
+        </div>
+
+        <form>
+            <label>Donor Name</label>
+            <input type="text" placeholder="Enter your full name" />
+
+            <div class="form-row">
+                <div>
+                    <label>Quantity / Amount</label>
+                    <input type="text" placeholder="Example: 02 or R500" />
+                </div>
+                <div>
+                    <label>Donation Date</label>
+                    <input type="date" />
+                </div>
+            </div>
+
+            <label>Description</label>
+            <textarea placeholder="Describe your donation"></textarea>
+
+            <div class="modal-actions">
+                <button type="submit" class="submit-btn">Submit Donation</button>
+                <button type="button" class="cancel-btn" onclick="closeDonationModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openDonationModal() {
+        document.getElementById("donationModal").style.display = "flex";
+        toggleEftDetails();
+    }
+
+    function closeDonationModal() {
+        document.getElementById("donationModal").style.display = "none";
+    }
+
+    function toggleEftDetails() {
+        const selectedType = document.querySelector('input[name="donationType"]:checked').value;
+        const eftDetails = document.getElementById("eftDetails");
+        eftDetails.style.display = selectedType === "Money" ? "block" : "none";
+    }
+
+    // AJAX form submission
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector("#donationModal form");
+        if (form) {
+            form.addEventListener("submit", async function(e) {
+                e.preventDefault();
+
+                const donorName = form.querySelector("input[type='text']")?.value || "";
+                const donationType = document.querySelector('input[name="donationType"]:checked')?.value || "";
+                const quantityAmount = form.querySelector(".form-row input[type='text']")?.value || "";
+                const donationDate = form.querySelector("input[type='date']")?.value || "";
+                const description = form.querySelector("textarea")?.value || "";
+
+                const data = {
+                    donorName: donorName,
+                    donationType: donationType,
+                    quantityOrAmount: quantityAmount,
+                    donationDate: donationDate,
+                    description: description
+                };
+
+                try {
+                    const response = await fetch("/Donations/Create", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert("Donation saved successfully!");
+                        closeDonationModal();
+                        location.reload();
+                    } else {
+                        alert("Error: " + (result.message || "Unknown error"));
+                    }
+                } catch (error) {
+                    alert("Network error: " + error.message);
+                }
+            });
+        }
+    });
+</script>

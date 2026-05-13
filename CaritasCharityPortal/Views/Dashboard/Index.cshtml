@@ -1,0 +1,107 @@
+﻿@model CaritasCharityPortal.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var isAdmin = ViewBag.IsAdmin == true;
+}
+
+<h1 class="page-title">Dashboard</h1>
+<p class="page-subtitle">Welcome back! Here's what's happening today.</p>
+
+<!-- STATS -->
+<div class="stats">
+    @if (isAdmin)
+    {
+        <div class="card">
+            <div class="card-header">
+                <h4>Total Donations</h4>
+                <div class="icon blue"><i class="fa-regular fa-heart"></i></div>
+            </div>
+            <h2>@Model.TotalDonations</h2>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>Assistance Requests</h4>
+                <div class="icon green"><i class="fa-solid fa-hand-holding-heart"></i></div>
+            </div>
+            <h2>@Model.AssistanceRequests</h2>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>Inventory Items</h4>
+                <div class="icon purple"><i class="fa-solid fa-cube"></i></div>
+            </div>
+            <h2>@Model.InventoryItems</h2>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>Active Volunteers</h4>
+                <div class="icon orange"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <h2>@Model.ActiveVolunteers</h2>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <h4>Your Donations</h4>
+                <div class="icon blue"><i class="fa-regular fa-heart"></i></div>
+            </div>
+            <h2>@Model.TotalDonations</h2>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>Your Requests</h4>
+                <div class="icon green"><i class="fa-solid fa-hand-holding-heart"></i></div>
+            </div>
+            <h2>@Model.AssistanceRequests</h2>
+        </div>
+        <!-- Users see only two cards -->
+    }
+</div>
+
+<!-- LOWER SECTION -->
+<div class="dashboard-grid">
+    <div class="panel">
+        <h3>Recent Donations</h3>
+        @if (Model.RecentDonations.Any())
+        {
+            @foreach (var donation in Model.RecentDonations)
+            {
+                <div class="item">
+                    @donation.DonorName - @donation.DonationType - @donation.QuantityOrAmount
+                    <span class="badge @donation.StatusBadgeClass">@donation.Status</span>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="item">No donations to display.</div>
+        }
+    </div>
+
+    <div class="panel">
+        <h3>@(isAdmin ? "Pending Assistance Requests" : "Your Pending Requests")</h3>
+        @if (Model.PendingAssistanceRequests.Any())
+        {
+            @foreach (var req in Model.PendingAssistanceRequests)
+            {
+                <div class="item">
+                    @req.ReferenceNumber - @req.AssistanceType
+                    @if (req.IsUrgent)
+                    {
+                        <span class="badge red">Urgent</span>
+                    }
+                    else
+                    {
+                        <span class="badge yellow">Pending</span>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="item">No pending requests.</div>
+        }
+    </div>
+</div>
