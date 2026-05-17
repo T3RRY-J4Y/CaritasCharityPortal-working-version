@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Caritas St Thomas More</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CaritasCharityPortal.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --red: #c8102e;
+            --red-dark: #9b0b21;
+            --gold: #c9944b;
+            --cream: #fdf8f3;
+            --dark: #1c1008;
+            --mid: #4a3728;
+            --grey: #7a6858;
+            --border: #e8e0d8;
+            --sidebar-width: 240px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Jost', sans-serif;
+            background: #f5f3ef;
+            color: var(--dark);
+        }
+
+        /* ===== APP SHELL ===== */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #ffffff;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        /* Brand */
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+        }
+        .sidebar-logo {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .sidebar-brand-text strong {
+            display: block;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.1;
+        }
+        .sidebar-brand-text span {
+            font-size: 10px;
+            color: var(--grey);
+            letter-spacing: .4px;
+            text-transform: uppercase;
+        }
+
+        /* User box */
+        .logged-box {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: #fdf8f3;
+        }
+        .logged-box small {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--grey);
+            margin-bottom: 3px;
+        }
+        .logged-box strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .role-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 8px;
+        }
+        .role-admin { background: #fee2e2; color: #dc2626; }
+        .role-user  { background: #dbeafe; color: #1d4ed8; }
+        .logout-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 0;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Jost', sans-serif;
+            transition: color .2s;
+        }
+        .logout-btn:hover { color: #dc2626; }
+
+        /* Nav groups */
+        .sidebar-menu {
+            flex: 1;
+            padding: 12px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-group-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #b0a090;
+            padding: 12px 20px 4px;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--grey);
+            text-decoration: none;
+            transition: all .18s;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-menu a i {
+            font-size: 14px;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .sidebar-menu a:hover {
+            background: #fdf8f3;
+            color: var(--red);
+            border-left-color: rgba(200,16,46,0.3);
+        }
+        .sidebar-menu a.active {
+            background: #fff0f2;
+            color: var(--red);
+            font-weight: 700;
+            border-left-color: var(--red);
+        }
+
+        /* Footer */
+        .sidebar-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+        }
+        .sidebar-footer a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--grey);
+            text-decoration: none;
+            transition: color .2s;
+        }
+        .sidebar-footer a:hover { color: var(--red); }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 32px 36px;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <div class="sidebar-brand">
+            <img src="~/images/logo.png" class="sidebar-logo" alt="Caritas Logo"/>
+            <div class="sidebar-brand-text">
+                <strong>Caritas</strong>
+                <span>St Thomas More</span>
+            </div>
+        </div>
+
+        <div class="logged-box">
+            <small>Logged in as</small>
+            <strong>
+                @{
+                    var fullName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
+                    if (string.IsNullOrEmpty(fullName))
+                        fullName = User.Identity?.Name ?? "User";
+                }
+                @fullName
+            </strong>
+            <div class="role-tag @(User.IsInRole("Admin") ? "role-admin" : "role-user")">
+                <i class="fa-solid @(User.IsInRole("Admin") ? "fa-shield-halved" : "fa-user")"></i>
+                @(User.IsInRole("Admin") ? "Administrator" : "Member")
+            </div>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="logout-btn">
+                    <i class="fa-solid fa-sign-out-alt"></i> Sign Out
+                </button>
+            </form>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a asp-controller="Dashboard" asp-action="Index"
+               class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                <i class="fa-solid fa-table-cells-large"></i> Dashboard
+            </a>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="sidebar-group-label">Donations & Aid</div>
+
+                <a asp-controller="Donations" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Donations" ? "active" : "")">
+                    <i class="fa-regular fa-heart"></i> All Donations
+                </a>
+
+                <a asp-controller="Assistance" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Assistance" ? "active" : "")">
+                    <i class="fa-solid fa-hand-holding-heart"></i> Assistance Requests
+                </a>
+
+                <a asp-controller="Inventory" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Inventory" ? "active" : "")">
+                    <i class="fa-solid fa-cubes"></i> Inventory
+                </a>
+
+                <div class="sidebar-group-label">Community</div>
+
+                <a asp-controller="Community" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Community" ? "active" : "")">
+                    <i class="fa-regular fa-message"></i> Community Board
+                </a>
+
+                <a asp-controller="Volunteer" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Volunteer" ? "active" : "")">
+                    <i class="fa-solid fa-users"></i> Volunteers
+                </a>
+
+                <div class="sidebar-group-label">Admin Tools</div>
+
+                <a asp-controller="Reports" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")">
+                    <i class="fa-solid fa-chart-column"></i> Reports
+                </a>
+
+                <a asp-controller="Receipts" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Receipts" ? "active" : "")">
+                    <i class="fa-solid fa-receipt"></i> Receipts
+                </a>
+            }
+            else
+            {
+                <div class="sidebar-group-label">Give</div>
+
+                <a asp-controller="Donations" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Donations" ? "active" : "")">
+                    <i class="fa-regular fa-heart"></i> My Donations
+                </a>
+
+                <div class="sidebar-group-label">Receive Help</div>
+
+                <a asp-controller="Assistance" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Assistance" ? "active" : "")">
+                    <i class="fa-solid fa-hand-holding-heart"></i> Request Assistance
+                </a>
+
+                <div class="sidebar-group-label">Community</div>
+
+                <a asp-controller="Community" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Community" ? "active" : "")">
+                    <i class="fa-regular fa-message"></i> Community Board
+                </a>
+
+                <a asp-controller="Volunteer" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Volunteer" ? "active" : "")">
+                    <i class="fa-solid fa-users"></i> Volunteer
+                </a>
+            }
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="/Home/Index">
+                <i class="fa-solid fa-house"></i> Back to Home
+            </a>
+        </div>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        @RenderBody()
+    </div>
+
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

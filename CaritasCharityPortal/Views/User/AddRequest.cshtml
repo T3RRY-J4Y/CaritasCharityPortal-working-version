@@ -1,0 +1,247 @@
+﻿@{
+    ViewData["Title"] = "Request Assistance";
+}
+
+<style>
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+
+.request-page-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+
+/* Info card */
+.info-card{
+    background:linear-gradient(145deg,#1c0a0a 0%,#3a0d1a 100%);
+    border-radius:12px;padding:36px 32px;position:relative;overflow:hidden;
+}
+.info-card::before{
+    content:'';position:absolute;inset:0;
+    background:url('/images/outreach3.jpg') center/cover no-repeat;
+    opacity:0.1;
+}
+.info-inner{position:relative;z-index:1}
+.info-card h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:12px;line-height:1.2}
+.info-card h2 em{color:#c9944b;font-style:normal}
+.info-card p{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.75;margin-bottom:24px}
+.info-steps{display:flex;flex-direction:column;gap:14px}
+.info-step{display:flex;align-items:flex-start;gap:12px}
+.step-num{
+    width:28px;height:28px;border-radius:50%;background:rgba(201,148,75,0.2);
+    border:1px solid rgba(201,148,75,0.4);color:#c9944b;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;
+}
+.step-text strong{display:block;font-size:13px;color:#fff;font-weight:600;margin-bottom:2px}
+.step-text span{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5}
+.info-note{
+    margin-top:24px;padding:12px 14px;
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+    border-radius:8px;font-size:12px;color:rgba(255,255,255,0.5);
+    display:flex;align-items:center;gap:8px;line-height:1.5;
+}
+
+/* Form card */
+.form-card{background:#fff;border:1px solid #e8e0d8;border-radius:12px;padding:32px}
+.form-card h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.form-card .form-desc{font-size:12px;color:#7a6858;margin-bottom:24px}
+
+.section-divider{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c8102e;margin:20px 0 4px;padding-bottom:6px;border-bottom:1px solid #f0ede8}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1c1008;margin-bottom:5px}
+.field input,.field textarea,.field select{
+    width:100%;padding:10px 12px;border:1.5px solid #e8e0d8;border-radius:6px;
+    font-family:'Jost',sans-serif;font-size:13px;color:#1c1008;background:#fff;
+    outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+    border-color:#c8102e;box-shadow:0 0 0 3px rgba(200,16,46,0.08);
+}
+.field input::placeholder,.field textarea::placeholder{color:#bbb}
+.field textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.private-note{
+    display:flex;align-items:center;gap:6px;
+    font-size:11px;color:#9ca3af;margin-top:4px;
+}
+
+.urgent-row{
+    display:flex;align-items:center;gap:10px;margin:16px 0;
+    padding:12px 14px;background:#fff8f8;border:1px solid #fecaca;border-radius:8px;
+}
+.urgent-row input[type=checkbox]{width:auto;margin:0;flex-shrink:0;accent-color:#dc2626;}
+.urgent-row span{font-size:13px;color:#dc2626;font-weight:600}
+
+.submit-btn{
+    width:100%;padding:13px;background:#c8102e;color:#fff;border:none;border-radius:6px;
+    font-family:'Jost',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+    transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+    margin-top:8px;
+}
+.submit-btn:hover{background:#9b0b21;transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,16,46,0.25)}
+.form-error{color:#dc2626;font-size:12px;margin-top:8px;display:none}
+.form-success{
+    display:none;text-align:center;padding:20px;background:#f0fdf4;
+    border:1px solid #bbf7d0;border-radius:8px;margin-top:12px;
+}
+.form-success i{font-size:28px;color:#16a34a;margin-bottom:8px;display:block}
+.form-success strong{display:block;font-size:15px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.form-success span{font-size:12px;color:#6b7280}
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Request Assistance</h1>
+        <p class="page-subtitle">Submit your request and our team will review it promptly.</p>
+    </div>
+</div>
+
+<div class="request-page-grid">
+
+    <!-- Left: info panel -->
+    <div class="info-card">
+        <div class="info-inner">
+            <h2>We're Here to <em>Help You.</em></h2>
+            <p>Caritas St Thomas More provides food parcels, clothing, blankets and financial support to families in need. Your request is handled with complete confidentiality.</p>
+
+            <div class="info-steps">
+                <div class="info-step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong>Submit Your Request</strong>
+                        <span>Fill in the form with your details and reason for needing assistance.</span>
+                    </div>
+                </div>
+                <div class="info-step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong>Admin Review</strong>
+                        <span>Our team reviews your request and will be in contact with you.</span>
+                    </div>
+                </div>
+                <div class="info-step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong>Receive Support</strong>
+                        <span>Once approved, assistance will be arranged and delivered to you.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-note">
+                <i class="fa-solid fa-lock" style="color:#c9944b;flex-shrink:0;"></i>
+                Your identity and contact details are kept completely private and are only visible to administrators.
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: form -->
+    <div class="form-card">
+        <h3>Assistance Request Form</h3>
+        <p class="form-desc">All fields marked * are required.</p>
+
+        <form id="requestForm">
+
+            <div class="section-divider">What Do You Need?</div>
+
+            <div class="form-row">
+                <div class="field">
+                    <label>Type of Assistance *</label>
+                    <select id="assistanceType" required>
+                        <option value="">Select type</option>
+                        <option>Food Parcels</option>
+                        <option>Money</option>
+                        <option>Clothing</option>
+                        <option>Blankets</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Quantity *</label>
+                    <input type="number" id="quantity" placeholder="e.g. 1" min="1" required/>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Reason for Request *</label>
+                <textarea id="reason" placeholder="Briefly explain why you need this assistance…" required></textarea>
+            </div>
+
+            <div class="section-divider">Your Details</div>
+
+            <div class="field">
+                <label>Contact Information (Private) *</label>
+                <input type="text" id="contactInfo" placeholder="Phone number or email address" required/>
+                <p class="private-note">
+                    <i class="fa-solid fa-lock"></i>
+                    Only visible to administrators — never shown publicly
+                </p>
+            </div>
+
+            <div class="urgent-row">
+                <input type="checkbox" id="isUrgent"/>
+                <span><i class="fa-solid fa-triangle-exclamation"></i> This is an urgent request</span>
+            </div>
+
+            <div class="form-error" id="formError"></div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fa-solid fa-paper-plane"></i> Submit Request
+            </button>
+
+            <div class="form-success" id="formSuccess">
+                <i class="fa-solid fa-check-circle"></i>
+                <strong>Request Submitted!</strong>
+                <span>Your request has been received and will be reviewed by our team.</span>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<script>
+document.getElementById("requestForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    var errEl = document.getElementById("formError");
+    errEl.style.display = "none";
+
+    var type     = document.getElementById("assistanceType").value;
+    var quantity = document.getElementById("quantity").value;
+    var reason   = document.getElementById("reason").value.trim();
+    var contact  = document.getElementById("contactInfo").value.trim();
+
+    if (!type)    { errEl.textContent = "Please select a type of assistance."; errEl.style.display = "block"; return; }
+    if (!quantity){ errEl.textContent = "Please enter a quantity.";            errEl.style.display = "block"; return; }
+    if (!reason)  { errEl.textContent = "Please enter a reason.";             errEl.style.display = "block"; return; }
+    if (!contact) { errEl.textContent = "Please enter your contact details."; errEl.style.display = "block"; return; }
+
+    var data = {
+        assistanceType: type,
+        quantity:       parseInt(quantity),
+        reason:         reason,
+        contactInfo:    contact,
+        isUrgent:       document.getElementById("isUrgent").checked
+    };
+
+    try {
+        var res    = await fetch("/User/SubmitRequest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+        var result = await res.json();
+        if (result.success) {
+            document.getElementById("requestForm").style.display = "none";
+            document.getElementById("formSuccess").style.display = "block";
+        } else {
+            errEl.textContent = result.message || "Submission failed.";
+            errEl.style.display = "block";
+        }
+    } catch(err) {
+        errEl.textContent = "Network error. Please try again.";
+        errEl.style.display = "block";
+    }
+});
+</script>

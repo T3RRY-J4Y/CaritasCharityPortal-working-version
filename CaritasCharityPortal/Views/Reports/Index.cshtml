@@ -1,0 +1,378 @@
+﻿@model CaritasCharityPortal.Models.ReportViewModel
+@{
+    ViewData["Title"] = "Reports";
+    var reportTypes = new[] { "Monthly Impact", "Donation Summary", "Top Donors" };
+    var dateRanges  = new[] { "Today", "This Week", "This Month", "This Quarter", "This Year" };
+}
+
+<style>
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.header-actions{display:flex;gap:10px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px;transition:box-shadow .2s}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat-card-header h4{font-size:12px;font-weight:600;color:#7a6858;text-transform:uppercase;letter-spacing:.5px}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.stat-icon.blue{background:#dbeafe;color:#1d4ed8}
+.stat-icon.green{background:#dcfce7;color:#16a34a}
+.stat-icon.orange{background:#ffedd5;color:#ea580c}
+.stat-icon.purple{background:#f3e8ff;color:#7c3aed}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#1c1008;line-height:1}
+.stat-label{font-size:11px;color:#9ca3af;margin-top:4px}
+
+/* Filter bar */
+.filter-card{display:flex;align-items:flex-end;gap:12px;background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:16px 20px;margin-bottom:24px;flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af}
+.filter-group select{padding:9px 12px;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;color:#374151;background:#fff;outline:none;cursor:pointer;transition:border-color .2s;min-width:160px}
+.filter-group select:focus{border-color:#c8102e}
+
+/* Buttons */
+.primary-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#c8102e;color:#fff;border:none;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.primary-btn:hover{background:#9b0b21;transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,16,46,0.25)}
+.secondary-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:#fff;color:#374151;border:1.5px solid #e8e0d8;border-radius:6px;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.secondary-btn:hover{border-color:#c8102e;color:#c8102e}
+
+/* Table */
+.table-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:24px;margin-bottom:24px}
+.table-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px}
+.table-header h3{font-size:15px;font-weight:700;color:#1c1008;margin-bottom:2px}
+.table-header p{font-size:12px;color:#9ca3af}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;border-bottom:2px solid #f3f4f6}
+.data-table td{padding:12px;border-bottom:1px solid #f9fafb;color:#374151;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fdf8f3}
+
+/* Rank badge */
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:700}
+.rank-badge.gold{background:#fef9c3;color:#a16207}
+.rank-badge.silver{background:#f3f4f6;color:#374151}
+.rank-badge.bronze{background:#ffedd5;color:#ea580c}
+.rank-badge.default{background:#f9fafb;color:#9ca3af}
+
+/* Cat chip */
+.cat-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.cat-chip.orange{background:#ffedd5;color:#ea580c}
+.cat-chip.blue{background:#dbeafe;color:#1d4ed8}
+.cat-chip.purple{background:#f3e8ff;color:#7c3aed}
+.cat-chip.green{background:#dcfce7;color:#16a34a}
+.cat-chip.grey{background:#f3f4f6;color:#6b7280}
+
+/* Chart card */
+.chart-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:24px;margin-bottom:24px}
+.chart-card-header{margin-bottom:20px}
+.chart-card-header h3{font-size:15px;font-weight:700;color:#1c1008;margin-bottom:2px}
+.chart-card-header p{font-size:12px;color:#9ca3af}
+
+@@media print {
+    .page-header .header-actions,.filter-card,.sidebar,button{display:none !important}
+    .main-content{margin:0;padding:0}
+    .table-card,.stat-card{break-inside:avoid}
+    canvas{max-width:100%;height:auto}
+}
+</style>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Reports</h1>
+        <p class="page-subtitle">Generate and export comprehensive system reports.</p>
+    </div>
+    <div class="header-actions">
+        <button class="secondary-btn" id="exportExcelBtn">
+            <i class="fa-solid fa-file-excel"></i> Export Excel
+        </button>
+        <button class="secondary-btn" id="exportPdfBtn">
+            <i class="fa-solid fa-file-pdf"></i> Export PDF
+        </button>
+    </div>
+</div>
+
+<!-- Filter bar -->
+<form method="get" id="filterForm">
+    <div class="filter-card">
+        <div class="filter-group">
+            <label>Report Type</label>
+            <select name="reportType" id="reportType">
+                @foreach (var t in reportTypes)
+                {
+                    var rSelected = ViewBag.SelectedReportType == t;
+                    <option value="@t" selected="@(rSelected ? "selected" : null)">@t</option>
+                }
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Date Range</label>
+            <select name="dateRange" id="dateRange">
+                @foreach (var dr in dateRanges)
+                {
+                    var drSelected = ViewBag.SelectedDateRange == dr;
+                    <option value="@dr" selected="@(drSelected ? "selected" : null)">@dr</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="primary-btn">
+            <i class="fa-solid fa-chart-column"></i> Generate Report
+        </button>
+    </div>
+</form>
+
+<!-- Stats -->
+<div class="stats">
+    <div class="stat-card">
+        <div class="stat-card-header"><h4>Total Value</h4><div class="stat-icon blue"><i class="fa-solid fa-chart-line"></i></div></div>
+        <div class="stat-num">R @(Model.TotalValue.ToString("N0"))</div>
+        <div class="stat-label">Monetary donations received</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header"><h4>Total Donations</h4><div class="stat-icon green"><i class="fa-regular fa-heart"></i></div></div>
+        <div class="stat-num">@Model.TotalDonations</div>
+        <div class="stat-label">All time submissions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header"><h4>Unique Donors</h4><div class="stat-icon purple"><i class="fa-solid fa-users"></i></div></div>
+        <div class="stat-num">@Model.UniqueDonors</div>
+        <div class="stat-label">Individual contributors</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header"><h4>Items Distributed</h4><div class="stat-icon orange"><i class="fa-solid fa-box"></i></div></div>
+        <div class="stat-num">@Model.ItemsDistributed</div>
+        <div class="stat-label">Distributed to community</div>
+    </div>
+</div>
+
+@if (ViewBag.SelectedReportType == "Donation Summary")
+{
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <h3>Donation Summary</h3>
+                <p>@ViewBag.SelectedDateRange</p>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="data-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Total Donations</th>
+                        <th>Total Value</th>
+                        <th>Distributed</th>
+                        <th>In Stock</th>
+                        <th>Donors</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.CategorySummaries)
+                    {
+                        var catClass = c.Category == "Food Parcels" ? "orange"
+                                     : c.Category == "Clothing"     ? "blue"
+                                     : c.Category == "Blankets"     ? "purple"
+                                     : c.Category == "Money"        ? "green"
+                                     : "grey";
+                        var catIcon = c.Category == "Food Parcels" ? "fa-box"
+                                    : c.Category == "Clothing"     ? "fa-shirt"
+                                    : c.Category == "Blankets"     ? "fa-bed"
+                                    : c.Category == "Money"        ? "fa-money-bill"
+                                    : "fa-tag";
+                        <tr>
+                            <td>
+                                <span class="cat-chip @catClass">
+                                    <i class="fa-solid @catIcon"></i> @c.Category
+                                </span>
+                            </td>
+                            <td style="font-weight:600;">@c.TotalDonations</td>
+                            <td style="font-weight:600;">R @(c.TotalValue.ToString("N0"))</td>
+                            <td>@c.Distributed</td>
+                            <td>@c.InStock</td>
+                            <td>@c.Donors</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else if (ViewBag.SelectedReportType == "Top Donors")
+{
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <h3>Top Donors</h3>
+                <p>@ViewBag.SelectedDateRange</p>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="data-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Donor Name</th>
+                        <th>Total Donations</th>
+                        <th>Total Value</th>
+                        <th>Last Donation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.TopDonors)
+                    {
+                        var rankClass = d.Rank == 1 ? "gold" : d.Rank == 2 ? "silver" : d.Rank == 3 ? "bronze" : "default";
+                        <tr>
+                            <td><span class="rank-badge @rankClass">#@d.Rank</span></td>
+                            <td style="font-weight:600;">@d.DonorName</td>
+                            <td>@d.DonationCount</td>
+                            <td style="font-weight:600;">R @(d.TotalValue.ToString("N0"))</td>
+                            <td style="font-size:12px;">@d.LastDonation.ToString("dd MMM yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Monthly Impact Table -->
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <h3>Monthly Impact</h3>
+                <p>Last 6 months overview</p>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="data-table" id="impactTable">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Donations</th>
+                        <th>Value</th>
+                        <th>Volunteers</th>
+                        <th>Assistance Requests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model.MonthlyImpacts)
+                    {
+                        <tr>
+                            <td style="font-weight:600;">@m.Month</td>
+                            <td>@m.Donations</td>
+                            <td style="font-weight:600;">R @(m.Value.ToString("N0"))</td>
+                            <td>@m.Volunteers</td>
+                            <td>@m.AssistanceRequests</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <h3>Monthly Impact Overview</h3>
+            <p>Donations, volunteers and assistance requests over the last 6 months</p>
+        </div>
+        <div style="position:relative;height:360px;">
+            <canvas id="impactChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        var months       = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyImpacts.Select(m => m.Month)));
+        var donations    = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyImpacts.Select(m => m.Donations)));
+        var volunteers   = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyImpacts.Select(m => m.Volunteers)));
+        var assistance   = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyImpacts.Select(m => m.AssistanceRequests)));
+
+        new Chart(document.getElementById('impactChart'), {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Donations',
+                        data: donations,
+                        backgroundColor: 'rgba(200,16,46,0.15)',
+                        borderColor: '#c8102e',
+                        borderWidth: 2,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Volunteers',
+                        data: volunteers,
+                        backgroundColor: 'rgba(201,148,75,0.15)',
+                        borderColor: '#c9944b',
+                        borderWidth: 2,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Assistance Requests',
+                        data: assistance,
+                        backgroundColor: 'rgba(29,78,216,0.12)',
+                        borderColor: '#1d4ed8',
+                        borderWidth: 2,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        ticks: { font: { family: 'Jost', size: 11 }, color: '#9ca3af' },
+                        title: { display: true, text: 'Count', font: { family: 'Jost', size: 11 }, color: '#9ca3af' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Jost', size: 11 }, color: '#9ca3af' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { family: 'Jost', size: 12 }, color: '#4a3728', padding: 20 }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: '#1c1008',
+                        titleFont: { family: 'Jost', size: 12 },
+                        bodyFont:  { family: 'Jost', size: 12 },
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+<script>
+document.getElementById("exportExcelBtn").addEventListener("click", async function() {
+    var reportType = document.getElementById("reportType").value;
+    var dateRange  = document.getElementById("dateRange").value;
+    var res  = await fetch("/Reports/Export?reportType=" + encodeURIComponent(reportType) + "&dateRange=" + encodeURIComponent(dateRange) + "&format=csv", { method: "POST" });
+    var blob = await res.blob();
+    var url  = window.URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href   = url;
+    a.download = reportType + "_" + dateRange + "_" + new Date().toISOString().slice(0,10) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+});
+
+document.getElementById("exportPdfBtn").addEventListener("click", function() {
+    window.print();
+});
+</script>

@@ -1,0 +1,325 @@
+﻿@model CaritasCharityPortal.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var isAdmin = ViewBag.IsAdmin == true;
+}
+
+<style>
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.page-header-text{}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#1c1008;margin-bottom:4px}
+.page-subtitle{font-size:13px;color:#7a6858}
+.role-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.role-badge.admin{background:#fee2e2;color:#dc2626}
+.role-badge.user{background:#dbeafe;color:#1d4ed8}
+
+/* Stats grid */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px;transition:box-shadow .2s}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stat-card-header h4{font-size:12px;font-weight:600;color:#7a6858;text-transform:uppercase;letter-spacing:.5px}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.stat-icon.red{background:#fee2e2;color:#dc2626}
+.stat-icon.blue{background:#dbeafe;color:#1d4ed8}
+.stat-icon.green{background:#dcfce7;color:#16a34a}
+.stat-icon.orange{background:#ffedd5;color:#ea580c}
+.stat-icon.purple{background:#f3e8ff;color:#7c3aed}
+.stat-icon.gold{background:#fef9c3;color:#a16207}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#1c1008;line-height:1}
+.stat-label{font-size:11px;color:#9ca3af;margin-top:4px}
+
+/* Section label */
+.section-eyebrow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#b0a090;margin:24px 0 10px}
+
+/* Dashboard grid */
+.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.panel{background:#fff;border:1px solid #e8e0d8;border-radius:10px;padding:20px}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.panel-header h3{font-size:14px;font-weight:700;color:#1c1008}
+.panel-link{font-size:11px;font-weight:600;color:#c8102e;text-decoration:none;display:flex;align-items:center;gap:4px}
+.panel-link:hover{text-decoration:underline}
+.item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f5f3ef}
+.item:last-child{border-bottom:none}
+.item-left{display:flex;align-items:center;gap:10px}
+.item-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.item-icon.green{background:#dcfce7;color:#16a34a}
+.item-icon.blue{background:#dbeafe;color:#1d4ed8}
+.item-icon.orange{background:#ffedd5;color:#ea580c}
+.item-icon.purple{background:#f3e8ff;color:#7c3aed}
+.item-icon.red{background:#fee2e2;color:#dc2626}
+.item-name{font-size:13px;font-weight:600;color:#1c1008}
+.item-sub{font-size:11px;color:#9ca3af}
+.empty-msg{font-size:13px;color:#9ca3af;text-align:center;padding:20px 0}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge.blue{background:#dbeafe;color:#1d4ed8}
+.badge.green{background:#dcfce7;color:#16a34a}
+.badge.yellow{background:#fef9c3;color:#a16207}
+.badge.orange{background:#ffedd5;color:#ea580c}
+.badge.red{background:#fee2e2;color:#dc2626}
+
+/* Quick actions */
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.quick-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px 12px;background:#fff;border:1px solid #e8e0d8;border-radius:10px;text-decoration:none;color:#4a3728;font-size:12px;font-weight:600;text-align:center;transition:all .2s}
+.quick-card i{font-size:20px;color:#c8102e}
+.quick-card:hover{border-color:#c8102e;color:#c8102e;box-shadow:0 4px 12px rgba(0,0,0,0.06);transform:translateY(-2px)}
+
+/* User action cards */
+.user-actions{display:flex;flex-direction:column;gap:10px}
+.user-action-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;text-decoration:none;border:1.5px solid transparent;transition:all .2s}
+.user-action-card:hover{border-color:currentColor;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.user-action-card .action-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.user-action-card .action-text strong{display:block;font-size:13px;font-weight:700}
+.user-action-card .action-text span{font-size:11px}
+.user-action-card .action-arrow{margin-left:auto;font-size:11px;color:#9ca3af}
+.user-action-card.blue{background:#eff6ff;color:#1d4ed8}
+.user-action-card.blue .action-icon{background:#dbeafe}
+.user-action-card.green{background:#f0fdf4;color:#16a34a}
+.user-action-card.green .action-icon{background:#dcfce7}
+.user-action-card.purple{background:#faf5ff;color:#7c3aed}
+.user-action-card.purple .action-icon{background:#f3e8ff}
+.user-action-card.orange{background:#fff7ed;color:#ea580c}
+.user-action-card.orange .action-icon{background:#ffedd5}
+</style>
+
+@if (isAdmin)
+{
+    <!-- ===== ADMIN DASHBOARD ===== -->
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1 class="page-title">Admin Dashboard</h1>
+            <p class="page-subtitle">Overview of all donations, requests, inventory and volunteers.</p>
+        </div>
+        <span class="role-badge admin"><i class="fa-solid fa-shield-halved"></i> Administrator</span>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <h4>Total Donations</h4>
+                <div class="stat-icon blue"><i class="fa-regular fa-heart"></i></div>
+            </div>
+            <div class="stat-num">@Model.TotalDonations</div>
+            <div class="stat-label">All time submissions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <h4>Assistance Requests</h4>
+                <div class="stat-icon green"><i class="fa-solid fa-hand-holding-heart"></i></div>
+            </div>
+            <div class="stat-num">@Model.AssistanceRequests</div>
+            <div class="stat-label">Total requests received</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <h4>Inventory Items</h4>
+                <div class="stat-icon purple"><i class="fa-solid fa-cubes"></i></div>
+            </div>
+            <div class="stat-num">@Model.InventoryItems</div>
+            <div class="stat-label">Items in stock</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <h4>Active Volunteers</h4>
+                <div class="stat-icon orange"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="stat-num">@Model.ActiveVolunteers</div>
+            <div class="stat-label">Currently serving</div>
+        </div>
+    </div>
+
+    <!-- Recent donations + Pending requests -->
+    <div class="section-eyebrow">Activity</div>
+    <div class="dashboard-grid">
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Recent Donations</h3>
+                <a href="/Donations/Index" class="panel-link">View all <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            @if (Model.RecentDonations.Any())
+            {
+                @foreach (var d in Model.RecentDonations)
+                {
+                    var iconClass = d.DonationType == "Money" ? "green" : d.DonationType == "Food Parcels" ? "orange" : d.DonationType == "Clothing" ? "blue" : "purple";
+                    var iconName  = d.DonationType == "Money" ? "fa-money-bill" : d.DonationType == "Food Parcels" ? "fa-box" : d.DonationType == "Clothing" ? "fa-shirt" : "fa-bed";
+                    <div class="item">
+                        <div class="item-left">
+                            <span class="item-icon @iconClass"><i class="fa-solid @iconName"></i></span>
+                            <div>
+                                <div class="item-name">@d.DonorName</div>
+                                <div class="item-sub">@d.DonationType · @d.QuantityOrAmount</div>
+                            </div>
+                        </div>
+                        <span class="badge @d.StatusBadgeClass">@d.Status</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="empty-msg">No donations yet.</p>
+            }
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Pending Assistance Requests</h3>
+                <a href="/Assistance/Index" class="panel-link">View all <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            @if (Model.PendingAssistanceRequests.Any())
+            {
+                @foreach (var r in Model.PendingAssistanceRequests)
+                {
+                    <div class="item">
+                        <div class="item-left">
+                            <span class="item-icon @(r.IsUrgent ? "red" : "orange")">
+                                <i class="fa-solid @(r.IsUrgent ? "fa-triangle-exclamation" : "fa-hand-holding-heart")"></i>
+                            </span>
+                            <div>
+                                <div class="item-name">@r.ReferenceNumber</div>
+                                <div class="item-sub">@r.AssistanceType</div>
+                            </div>
+                        </div>
+                        @if (r.IsUrgent)
+                        {
+                            <span class="badge red">Urgent</span>
+                        }
+                        else
+                        {
+                            <span class="badge yellow">Pending</span>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="empty-msg">No pending requests.</p>
+            }
+        </div>
+
+    </div>
+
+    <!-- Quick actions -->
+    <div class="section-eyebrow">Quick Actions</div>
+    <div class="quick-grid">
+        <a href="/Donations/Index"  class="quick-card"><i class="fa-regular fa-heart"></i><span>Manage Donations</span></a>
+        <a href="/Assistance/Index" class="quick-card"><i class="fa-solid fa-hand-holding-heart"></i><span>Assistance Requests</span></a>
+        <a href="/Inventory/Index"  class="quick-card"><i class="fa-solid fa-cubes"></i><span>View Inventory</span></a>
+        <a href="/Volunteer/Index"  class="quick-card"><i class="fa-solid fa-users"></i><span>Volunteers</span></a>
+        <a href="/Reports/Index"    class="quick-card"><i class="fa-solid fa-chart-column"></i><span>Reports</span></a>
+        <a href="/Receipts/Index"   class="quick-card"><i class="fa-solid fa-receipt"></i><span>Receipts</span></a>
+    </div>
+}
+else
+{
+    <!-- ===== USER DASHBOARD ===== -->
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1 class="page-title">My Dashboard</h1>
+            <p class="page-subtitle">Welcome back! Here's a summary of your activity.</p>
+        </div>
+        <span class="role-badge user"><i class="fa-solid fa-user"></i> Member</span>
+    </div>
+
+    <!-- User stats -->
+    <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <h4>My Donations</h4>
+                <div class="stat-icon blue"><i class="fa-regular fa-heart"></i></div>
+            </div>
+            <div class="stat-num">@Model.TotalDonations</div>
+            <div class="stat-label">Donations submitted</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <h4>My Requests</h4>
+                <div class="stat-icon green"><i class="fa-solid fa-hand-holding-heart"></i></div>
+            </div>
+            <div class="stat-num">@Model.AssistanceRequests</div>
+            <div class="stat-label">Assistance requests submitted</div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <!-- Recent donations -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3>My Recent Donations</h3>
+                <a href="/Donations/Index" class="panel-link">View all <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            @if (Model.RecentDonations.Any())
+            {
+                @foreach (var d in Model.RecentDonations)
+                {
+                    var iconClass = d.DonationType == "Money" ? "green" : d.DonationType == "Food Parcels" ? "orange" : d.DonationType == "Clothing" ? "blue" : "purple";
+                    var iconName  = d.DonationType == "Money" ? "fa-money-bill" : d.DonationType == "Food Parcels" ? "fa-box" : d.DonationType == "Clothing" ? "fa-shirt" : "fa-bed";
+                    <div class="item">
+                        <div class="item-left">
+                            <span class="item-icon @iconClass"><i class="fa-solid @iconName"></i></span>
+                            <div>
+                                <div class="item-name">@d.DonationType</div>
+                                <div class="item-sub">@d.QuantityOrAmount</div>
+                            </div>
+                        </div>
+                        <span class="badge @d.StatusBadgeClass">@d.Status</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="text-align:center;padding:24px 0;">
+                    <i class="fa-regular fa-heart" style="font-size:28px;color:#d1d5db;margin-bottom:8px;display:block;"></i>
+                    <p class="empty-msg" style="margin:0;">No donations yet.</p>
+                    <a href="/Donations/Index" style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 16px;background:#c8102e;color:#fff;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">
+                        <i class="fa-solid fa-plus"></i> Make a Donation
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Quick actions -->
+        <div class="panel">
+            <div class="panel-header"><h3>Quick Actions</h3></div>
+            <div class="user-actions">
+                <a href="/Donations/Index" class="user-action-card blue">
+                    <div class="action-icon"><i class="fa-regular fa-heart"></i></div>
+                    <div class="action-text">
+                        <strong>Make a Donation</strong>
+                        <span>Donate food, clothing, blankets or money</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right action-arrow"></i>
+                </a>
+                <a href="/Assistance/Index" class="user-action-card green">
+                    <div class="action-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                    <div class="action-text">
+                        <strong>Request Assistance</strong>
+                        <span>Submit a food parcel or support request</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right action-arrow"></i>
+                </a>
+                <a href="/Volunteer/Index" class="user-action-card purple">
+                    <div class="action-icon"><i class="fa-solid fa-users"></i></div>
+                    <div class="action-text">
+                        <strong>Volunteer</strong>
+                        <span>Apply to join our volunteer team</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right action-arrow"></i>
+                </a>
+                <a href="/Community/Index" class="user-action-card orange">
+                    <div class="action-icon"><i class="fa-regular fa-message"></i></div>
+                    <div class="action-text">
+                        <strong>Community Board</strong>
+                        <span>View and respond to community posts</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right action-arrow"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+}
