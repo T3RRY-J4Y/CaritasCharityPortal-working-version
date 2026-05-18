@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using CaritasCharityPortal.Converters;
 
 namespace CaritasCharityPortal.Models
 {
@@ -38,6 +39,7 @@ namespace CaritasCharityPortal.Models
         public int TotalHours { get; set; }
 
         [JsonProperty("submittedAt")]
+        [JsonConverter(typeof(FlexibleDateTimeConverter))]
         public DateTime SubmittedAt { get; set; }
     }
 

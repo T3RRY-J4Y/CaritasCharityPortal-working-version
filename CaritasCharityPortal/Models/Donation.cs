@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using CaritasCharityPortal.Converters;
 
 namespace CaritasCharityPortal.Models
 {
@@ -23,6 +24,7 @@ namespace CaritasCharityPortal.Models
         public decimal? Amount { get; set; }
 
         [JsonProperty("donationDate")]
+        [JsonConverter(typeof(FlexibleDateTimeConverter))]
         public DateTime DonationDate { get; set; }
 
         [JsonProperty("status")]
@@ -32,14 +34,15 @@ namespace CaritasCharityPortal.Models
         public string? Description { get; set; }
 
         [JsonProperty("createdAt")]
+        [JsonConverter(typeof(FlexibleDateTimeConverter))]
         public DateTime CreatedAt { get; set; }
 
         [JsonProperty("email")]
         public string? Email { get; set; }
 
         public string DisplayQuantityOrAmount => DonationType == "Money"
-            ? (Amount.HasValue ? $"R {Amount.Value:N2}" : "R 0.00")
-            : (Quantity.HasValue ? Quantity.Value.ToString() : "0");
+            ? (Amount?.ToString("C") ?? "R0")
+            : (Quantity?.ToString() ?? "0");
     }
 
     public class DonationCreateDto

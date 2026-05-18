@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using CaritasCharityPortal.Converters;
 
 namespace CaritasCharityPortal.Models
 {
@@ -20,6 +21,7 @@ namespace CaritasCharityPortal.Models
         public int Quantity { get; set; }
 
         [JsonProperty("lastUpdated")]
+        [JsonConverter(typeof(FlexibleDateTimeConverter))]
         public DateTime LastUpdated { get; set; }
 
         [JsonProperty("storageLocation")]

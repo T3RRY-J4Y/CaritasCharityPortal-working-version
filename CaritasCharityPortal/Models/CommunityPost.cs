@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using CaritasCharityPortal.Converters;
 
 namespace CaritasCharityPortal.Models
 {
@@ -38,6 +39,7 @@ namespace CaritasCharityPortal.Models
         public string? UserEmail { get; set; } // for tracking, not displayed
 
         [JsonProperty("createdAt")]
+        [JsonConverter(typeof(FlexibleDateTimeConverter))]
         public DateTime CreatedAt { get; set; }
 
         [JsonProperty("responseCount")]

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using CaritasCharityPortal.Converters;
 
 namespace CaritasCharityPortal.Models
 {
@@ -20,12 +21,14 @@ namespace CaritasCharityPortal.Models
         public string? FileLink { get; set; }
 
         [JsonProperty("purchaseDate")]
+        [JsonConverter(typeof(FlexibleDateTimeConverter))]
         public DateTime PurchaseDate { get; set; }
 
         [JsonProperty("status")]
         public string? Status { get; set; }
 
         [JsonProperty("uploadedAt")]
+        [JsonConverter(typeof(FlexibleDateTimeConverter))]
         public DateTime UploadedAt { get; set; }
     }
 

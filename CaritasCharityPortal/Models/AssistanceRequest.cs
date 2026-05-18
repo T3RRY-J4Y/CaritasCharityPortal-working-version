@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using CaritasCharityPortal.Converters;
 
 namespace CaritasCharityPortal.Models
 {
@@ -65,6 +66,7 @@ namespace CaritasCharityPortal.Models
         public bool DeclarationAccepted { get; set; }
 
         [JsonProperty("submittedAt")]
+        [JsonConverter(typeof(FlexibleDateTimeConverter))]
         public DateTime SubmittedAt { get; set; }
 
         [JsonProperty("status")]
@@ -72,5 +74,8 @@ namespace CaritasCharityPortal.Models
 
         [JsonProperty("userEmail")]
         public string? UserEmail { get; set; }
+
+        [JsonProperty("assistanceType")]
+        public string? AssistanceType { get; set; }
     }
 }
